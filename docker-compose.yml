@@ -1,12 +1,14 @@
 # NOTE: this is the production Docker Compose configuration file. DO NOT put
 #       any stuff that must be available only in development. Please use the
 #       file docker-compose.override.yml instead.
-version: "2"
+version: "3"
 services:
   swarm-logger:
     image: bde2020/mu-swarm-logger-service
     links:
       - database:database
+    privileged: true
+    userns_mode: "host"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   database:
@@ -24,15 +26,17 @@ services:
       SLEEP_PERIOD: '10'
   docker-watcher:
     image: bde2020/mu-docker-watcher-service
+    userns_mode: "host"
+    network_mode: host
     volumes:
       - ./config/supervisord.conf:/etc/supervisord.conf
       - ./containers:/app/containers
       - ./pcap:/app/pcap/
-    network_mode: host
     environment:
       PCAP_READ_DIR: '/pcap'
   har-transformation:
-    image: bde2020/mu-har-transformation-service
+    image: lblod/mu-har-transformation-service
+    userns_mode: "host"
     volumes:
       - ./pcap:/app/pcap
       - ./har:/app/har
