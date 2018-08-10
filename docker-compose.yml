@@ -26,3 +26,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       CAPTURE_CONTAINER_FILTER: '?uri docker:label ?theLabel. ?theLabel docker:key "logging"'
+      # PCAP_VOLUME: /your/absolute/path
+      PCAP_VOLUME: pcaps
+volumes:
+  pcaps
