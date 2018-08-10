@@ -3,8 +3,8 @@
 #       file docker-compose.override.yml instead.
 version: "3"
 services:
-  swarm-logger:
-    image: bde2020/mu-swarm-logger-service
+  monitor:
+    image: lblod/docker-monitor-service
     links:
       - database:database
     privileged: true
@@ -12,50 +12,17 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   database:
-    image: tenforce/virtuoso:1.1.1-virtuoso7.2.4
+    image: tenforce/virtuoso:1.3.1-virtuoso7.2.4
     environment:
       SPARQL_UPDATE: "true"
       DEFAULT_GRAPH: "http://mu.semte.ch/application"
-  event-query:
-    image: bde2020/mu-event-query-service
-    links:
-      - database:database
     volumes:
-      - ./containers:/usr/src/app/containers/
-    environment:
-      SLEEP_PERIOD: '10'
-  docker-watcher:
-    image: bde2020/mu-docker-watcher-service
-    userns_mode: "host"
-    network_mode: host
-    volumes:
-      - ./config/supervisord.conf:/etc/supervisord.conf
-      - ./containers:/app/containers
-      - ./pcap:/app/pcap/
-    environment:
-      PCAP_READ_DIR: '/pcap'
-  har-transformation:
-    image: lblod/mu-har-transformation-service
+      - ./data/db/:/data
+  pcap:
+    image: lblod/docker-network-capture-service
+    privileged: true
     userns_mode: "host"
     volumes:
-      - ./pcap:/app/pcap
-      - ./har:/app/har
-      - ./containers:/app/containers
-      - ./backups:/app/backups
-    links:
-      - elasticsearch:elasticsearch
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      BU_DIR: "/app/backups"
-  elasticsearch:
-    image: elasticsearch:2.4.6
-    command: elasticsearch -D network.host=0.0.0.0
-    ports:
-      - "9200:9200"
-  kibana:
-    image: kibana:4.6
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-    links:
-      - elasticsearch:elasticsearch
+      CAPTURE_CONTAINER_FILTER: '?uri docker:label ?theLabel. ?theLabel docker:key "logging"'
