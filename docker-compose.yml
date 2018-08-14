@@ -1,6 +1,7 @@
-# NOTE: this is the production Docker Compose configuration file. DO NOT put
-#       any stuff that must be available only in development. Please use the
-#       file docker-compose.override.yml instead.
+# NOTE: this docker-compose.yml needs to be completed by either the
+#       docker-compose.visualize.yml and/or docker-compose.encrypt.yml
+#       if you have not removed the .env file docker-compose.visualize will be included by default
+
 version: "3"
 services:
   monitor:
@@ -24,9 +25,19 @@ services:
     userns_mode: "host"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - pcaps:/data
     environment:
       CAPTURE_CONTAINER_FILTER: '?uri docker:label ?theLabel. ?theLabel docker:key "logging"'
       # PCAP_VOLUME: /your/absolute/path
       PCAP_VOLUME: pcaps
+  pcap-to-har:
+    image: lblod/mu-har-transformation-service
+    volumes:
+      - pcaps:/data/pcaps
+      - hars:/data/hars
+      - processed_pcaps:/data/processed
 volumes:
-  pcaps
+  pcaps:
+    external: true
+  hars:
+  processed_pcaps:
