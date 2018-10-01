@@ -31,7 +31,7 @@ services:
       # PCAP_VOLUME: /your/absolute/path
       PCAP_VOLUME: pcaps
   pcap-to-har:
-    image: lblod/mu-har-transformation-service
+    image: lblod/mu-har-transformation-service:0.1.0
     volumes:
       - pcaps:/data/pcaps
       - hars:/data/hars
