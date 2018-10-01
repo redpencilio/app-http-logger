@@ -34,7 +34,21 @@ Make sure you have a public GPG key available in the `./keys` folder and configu
 gpg --gen-key
 ```
 
+### visualizing encrypted logs
+To visualize encrypted logs from an application, first decrypt the encrypted har files from the `processed_hars` Docker volume.
+```
+for file in $source_dir/*/*.trans.har.gpg ; do
+    mkdir -p "$target_dir/`dirname $file`"
+    gpg --decrypt --recipient $recipient --trust-model always --passphrase-file $gpg_key_pwd -o "$target_dir/`dirname $file`/`basename $file ".gpg"`" $file
+done
+```
 
+Next clone this repository and start the visualization stack.
+```
+docker-compose -f docker-compose.visualize.yml up -d
+```
+
+Copy the decrypted files to the `hars` Docker volume. Visit *http://localhost:5601* to start visualizing your data. For a basic setup, click on 'discover' and add the index `hars*`.
 
 ## Components
 

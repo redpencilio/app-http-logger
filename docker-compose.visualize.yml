@@ -27,3 +27,4 @@ services:
 volumes:
   esdata:
   processed_hars:
+  hars:
