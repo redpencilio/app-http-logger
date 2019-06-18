@@ -18,7 +18,10 @@ Clone this repository and then run the following commands to start the stack
 docker volume create --name=pcaps
 docker-compose up -d
 ```
+
 After a few minutes (if traffic has been logged), visit *http://localhost:5601* to start visualizing your data. For a basic setup, click on 'discover' and add the index `hars*`
+
+Be sure to set the `logging` label to any container of which you want to log the traffic.
 
 ### logging traffic and encrypting it
 Clone this repository and then run the following commands to start the stack. 
