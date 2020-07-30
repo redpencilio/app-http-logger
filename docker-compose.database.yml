@@ -9,5 +9,5 @@ services:
     ports:
       - 8890:8890
     volumes:
-      - ./data/db:/data
-      - ./config/virtuoso/virtuoso.ini:/data/virtuoso.ini
+      - ./data/db:/data:rw
+      - ./data/db/virtuoso.ini:/data/virtuoso.ini
