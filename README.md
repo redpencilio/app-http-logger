@@ -16,7 +16,7 @@ This application is intended to **extend an existing docker-compose project** wi
 ### Logging traffic and visualizing it
 Run the following command to attach logging and visualization to your docker-compose project:
 ```
-docker-compose -f $YOUR_COMPOSE_FILE -f docker-compose.logging.yml -f docker.compose.logging.visualize.yml up -d
+docker-compose -f $YOUR_COMPOSE_FILE -f docker-compose.logging.yml -f docker-compose.logging.visualize.yml up -d
 ```
 
 Requests will be visible on `http://localhost:5601` in Kibana. For a basic setup, add the index `http*` and click on 'discover'.
@@ -27,7 +27,7 @@ Make sure you have a public GPG key available in the `./keys` folder and configu
 
 Then run the following command to attach logging and visualization to your docker-compose project:
 ```
-docker-compose -f $YOUR_COMPOSE_FILE -f docker-compose.logging.yml -f docker.compose.logging.encrypt.yml up -d
+docker-compose -f $YOUR_COMPOSE_FILE -f docker-compose.logging.yml -f docker-compose.logging.encrypt.yml up -d
 ```
 
 ### Using a separate triplestore
@@ -44,7 +44,7 @@ done
 
 Next, start the visualisation stack (without a base project)
 ```
-docker-compose -f docker-compose.database.yml -f docker-compose.logging.yml -f docker.compose.logging.visualize.yml up -d
+docker-compose -f docker-compose.database.yml -f docker-compose.logging.yml -f docker-compose.logging.visualize.yml up -d
 ```
 Now you can upload the decrypted JSON files to ElasticSearch:
 ```
