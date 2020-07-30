@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  database:
+    image: tenforce/virtuoso:1.3.2-virtuoso7.2.2
+    environment:
+      SPARQL_UPDATE: "true"
+      DEFAULT_GRAPH: "http://mu.semte.ch/application"
+    ports:
+      - 8890:8890
+    volumes:
+      - ./data/db:/data
+      - ./config/virtuoso/virtuoso.ini:/data/virtuoso.ini

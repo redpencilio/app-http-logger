@@ -1,0 +1,41 @@
+version: '3.4'
+
+services:
+  monitor:
+    image: lblod/docker-monitor-service
+    privileged: true
+    userns_mode: "host"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  capture:
+    build: ~/werk/docker-network-capture-service/
+    privileged: true
+    userns_mode: "host"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      CAPTURE_CONTAINER_FILTER: '?uri docker:label ?theLabel. ?theLabel docker:key "logging"'
+      CAPTURE_SYNC_INTERVAL: 1000
+    depends_on: # Ensures this service is stopped before the database stops.
+      - database
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash-oss:7.8.1
+    ports:
+      - 5044
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

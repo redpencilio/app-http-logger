@@ -1,5 +1,5 @@
 # Utility directories
 containers/
-pcap/
-har/
 backups/
+keys/
+data/db/

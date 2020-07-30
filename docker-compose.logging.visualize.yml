@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  logstash:
+    volumes:
+      - ./logstash/visualize-pipeline.conf:/usr/share/logstash/pipeline/visualize-pipeline.conf
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    ports:
+      - 9200:9200
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.3.2
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  esdata:

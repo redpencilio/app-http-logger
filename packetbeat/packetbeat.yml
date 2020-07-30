@@ -1,0 +1,19 @@
+name: "${COMPOSE_SERVICE:?No service}-${COMPOSE_CONTAINER_ID:?No container ID}"
+
+fields:
+  compose_project: "${COMPOSE_PROJECT}"
+  compose_service: "${COMPOSE_SERVICE}"
+  compose_container_number: "${COMPOSE_CONTAINER_ID}"
+
+packetbeat.interfaces.device: any
+
+packetbeat.protocols:
+    - type: http
+      ports: [80]
+      send_all_headers: true
+      include_body_for: ["text/html", "text/plain", "application/xml", "application/javascript", "application/json", "application/x-ndjson", "multipart/form-data", "application/vnd.api+json"]
+      decode_body: true
+      split_cookie: true
+
+output.logstash:
+  hosts: ["${LOGSTASH_URL:?No Logstash URL provided.}"]
