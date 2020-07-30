@@ -56,7 +56,7 @@ docker-compose -f docker-compose.database.yml -f docker-compose.logging.yml -f d
 ```
 Now you can upload the decrypted JSON files to ElasticSearch:
 ```
-curl -XPOST 'http://localhost:9200/audit/_doc' -d @lane.json
+curl -XPOST 'http://localhost:9200/audit/_doc' --data-binary @http-log.json
 ```
 This will make the decrypted files available in the "audit" index. Now go to http://localhost:5601, add the "audit" index and you can search it.
 
