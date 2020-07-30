@@ -18,6 +18,11 @@ services:
       ENCRYPT_AFTER_MINUTES: 60
       ENCRYPT_GLOB: '/app/data/audit/http-log-*.json'
       #ENCRYPT_INTERVAL: 3600
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   logs:

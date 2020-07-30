@@ -14,7 +14,7 @@ services:
         max-file: "3"
 
   capture:
-    build: ~/werk/docker-network-capture-service/
+    image: redpencil/docker-network-capture-service
     privileged: true
     userns_mode: "host"
     volumes:

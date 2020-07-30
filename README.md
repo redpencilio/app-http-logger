@@ -1,14 +1,6 @@
 # app-http-logger
 Provide out-of-the-box automatic logging of your running docker containers, and make the data available on ElasticSearch + Kibana for further analysis and visualization.
 
-## Setup
-
-This application depends on a `packetbeat-local` image available in the local Docker daemon. This is a simple open source packetbeat image with a custom configuration file. Build it with:
-
-```
-docker build -t packetbeat-local packetbeat/
-```
-
 ## Usage 
 app-http-logger is structured as three docker-compose files:
 * `docker-compose.logging.yml`: provides common base functionality: services to attach a Packetbeat monitor to every container and a Logstash container to send the logs to.
@@ -66,7 +58,9 @@ This will make the decrypted files available in the "audit" index. Now go to htt
 
 * [docker-network-capture-service](https://github.com/lblod/docker-network-capture-service/): captures network traffic of docker containers as listed in the database. Optionally filters on a docker label.
 
-* [encryption-service](https://github.com/lblod/encryption-service/): encrypts files
+* [file-encryption-service](https://github.com/lblod/file-encryption-service/): encrypts files
+
+* [http-logger-packetbeat-service](https://github.com/redpencilio/http-logger-packetbeat-service/): encrypts files
 
 * [elasticsearch](https://www.docker.elastic.co/): search engine/database
 
