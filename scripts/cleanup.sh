@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo rm -rf ../containers/ ../pcap/ ../har/ ../backups/
+sudo rm -rf ../encrypted
