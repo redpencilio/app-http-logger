@@ -2,4 +2,6 @@
 containers/
 backups/
 keys/
-data/db/
+data/
+config/
+encrypted/

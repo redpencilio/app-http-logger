@@ -6,18 +6,20 @@ services:
       - ./logstash/encrypt-pipeline.conf:/usr/share/logstash/pipeline/encrypt-pipeline.conf
       - logs:/usr/share/logstash/data:rw
     environment:
-      LOGFILE_FORMAT_STRING: '/usr/share/logstash/data/audit/http-log-%{+YYYY.MM.dd.HH}.json'
+      LOGFILE_FORMAT_STRING: '/usr/share/logstash/data/audit/http-log-%{+YYYY-MM-dd-HH}.json'
 
   encrypt:
     image: lblod/file-encryption-service
     volumes:
-      - logs:/app/data
+      - logs:/app/data:rw
+      - ./encrypted:/app/encrypted:rw
       - ./keys:/keys:ro
     environment:
       ENCRYPT_RECIPIENT: 'gilles.coremans@gmail.com'
       ENCRYPT_AFTER_MINUTES: 60
       ENCRYPT_GLOB: '/app/data/audit/http-log-*.json'
-      #ENCRYPT_INTERVAL: 3600
+      ENCRYPTED_DIR: '/app/encrypted'
+      #ENCRYPT_INTERVAL: 3600 # default value
     logging:
       driver: "json-file"
       options:
