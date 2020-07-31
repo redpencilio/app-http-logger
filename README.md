@@ -59,7 +59,7 @@ This will make the decrypted files available in the "audit" index. Now go to htt
 
 * [file-encryption-service](https://github.com/lblod/file-encryption-service/): encrypts files
 
-* [http-logger-packetbeat-service](https://github.com/redpencilio/http-logger-packetbeat-service/): encrypts files
+* [http-logger-packetbeat-service](https://github.com/redpencilio/http-logger-packetbeat-service/): spawned by network capture service, monitors the traffic of the attached container.
 
 * [elasticsearch](https://www.docker.elastic.co/): search engine/database
 
