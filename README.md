@@ -36,9 +36,8 @@ In case the service you wish to monitor does not have a Virtuoso triplestore or 
 ### Visualizing encrypted logs
 To visualize encrypted logs from an application, first decrypt the encrypted files of interest:
 ```
-for file in audit/*.json.gpg ; do
-    mkdir -p "$target_dir/`dirname $file`"
-    gpg --decrypt --recipient $recipient --trust-model always --passphrase-file $gpg_key_pwd -o "$target_dir/`dirname $file`/`basename $file ".gpg"`" $file
+for file in encrypted/*.json.gpg ; do
+    gpg --decrypt --recipient $recipient --trust-model always --passphrase-file $gpg_key_pwd -o "encrypted/$(basename $file ".gpg")" $file
 done
 ```
 
@@ -48,7 +47,7 @@ docker-compose -f docker-compose.database.yml -f docker-compose.logging.yml -f d
 ```
 Now you can upload the decrypted JSON files to ElasticSearch:
 ```
-curl -XPOST 'http://localhost:9200/audit/_doc' --data-binary @http-log.json
+./scripts/visualize-audit.py http://localhost:9200 audit encrypted/*.json
 ```
 This will make the decrypted files available in the "audit" index. Now go to http://localhost:5601, add the "audit" index and you can search it.
 
