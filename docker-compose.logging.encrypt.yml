@@ -9,7 +9,7 @@ services:
       LOGFILE_FORMAT_STRING: '/usr/share/logstash/data/audit/http-log-%{+YYYY-MM-dd-HH}.json'
 
   encrypt:
-    image: lblod/file-encryption-service
+    image: redpencil/file-encryption-service
     volumes:
       - logs:/app/data:rw
       - ./encrypted:/app/encrypted:rw
