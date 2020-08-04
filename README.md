@@ -33,6 +33,16 @@ docker-compose -f $YOUR_COMPOSE_FILE -f docker-compose.logging.yml -f docker-com
 ### Using a separate triplestore
 In case the service you wish to monitor does not have a Virtuoso triplestore or you wish to separate the triplestores, you can include the `docker-compose.database.yml` file to start a separate database with service name `database`.
 
+For visualization:
+```
+docker-compose -f docker-compose.database.yml -f docker-compose.logging.yml -f docker-compose.logging.visualize.yml up -d
+```
+
+For encryption:
+```
+docker-compose -f docker-compose.database.yml -f docker-compose.logging.yml -f docker-compose.logging.encrypt.yml up -d
+```
+
 ### Visualizing encrypted logs
 To visualize encrypted logs from an application, first decrypt the encrypted files of interest:
 ```
@@ -41,7 +51,7 @@ for file in encrypted/*.json.gpg ; do
 done
 ```
 
-Next, start the visualisation stack (without a base project)
+Next, start the visualization stack (without a base project)
 ```
 docker-compose -f docker-compose.database.yml -f docker-compose.logging.yml -f docker-compose.logging.visualize.yml up -d
 ```
