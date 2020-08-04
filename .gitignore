@@ -3,5 +3,5 @@ containers/
 backups/
 keys/
 data/
-config/
+esdata/
 encrypted/

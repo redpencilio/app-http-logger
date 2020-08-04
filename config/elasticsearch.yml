@@ -1,0 +1,13 @@
+http:
+#  port: 9200
+  pipelining:
+    max_events: 100000
+
+path:
+  data: /usr/share/elasticsearch/data
+
+discovery:
+  type: single-node
+
+network:
+  host: 0

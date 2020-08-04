@@ -9,10 +9,9 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.8.1
     ports:
       - 9200:9200
-    environment:
-      - discovery.type=single-node
     volumes:
-      - esdata:/usr/share/elasticsearch/data
+      - ./esdata:/usr/share/elasticsearch/data
+      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     logging:
       driver: "json-file"
       options:
@@ -23,8 +22,10 @@ services:
     image: docker.elastic.co/kibana/kibana-oss:7.8.1
     ports:
       - 5601:5601
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./config/kibana.yml:/usr/share/kibana/config/kibana.yml
     logging:
       driver: "json-file"
       options:

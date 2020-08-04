@@ -15,7 +15,7 @@ services:
       - ./encrypted:/app/encrypted:rw
       - ./keys:/keys:ro
     environment:
-      ENCRYPT_RECIPIENT: 'gilles.coremans@gmail.com'
+      ENCRYPT_RECIPIENT: 'info@redpencil.io'
       ENCRYPT_AFTER_MINUTES: 60
       ENCRYPT_GLOB: '/app/data/audit/http-log-*.json'
       ENCRYPTED_DIR: '/app/encrypted'

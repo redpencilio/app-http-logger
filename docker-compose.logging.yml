@@ -7,6 +7,8 @@ services:
     userns_mode: "host"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      MONITOR_SYNC_INTERVAL: 2500
     logging:
       driver: "json-file"
       options:
@@ -21,7 +23,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       CAPTURE_CONTAINER_FILTER: '?uri docker:label ?theLabel. ?theLabel docker:key "logging"'
-      CAPTURE_SYNC_INTERVAL: 1000
+      CAPTURE_SYNC_INTERVAL: 2500
     depends_on: # Ensures this service is stopped before the database stops.
       - database
     logging:
