@@ -79,8 +79,4 @@ docker-compose -f $YOUR_COMPOSE_FILE -f docker-compose.logging.yml -f docker-com
 * [logstash](https://www.docker.elastic.co): log processing
 
 * [packetbeat](https://www.docker.elastic.co): network monitoring
-
-## Known issues
- * packetbeat containers are not removed when logger is stopped, a quick way to remove them is running `docker ps | grep packetbeat | awk '{ print $1 }' | xargs docker rm -f`
- * crashed packetbeat containers are not restarted
  
