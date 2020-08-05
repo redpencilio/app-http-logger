@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   monitor:
-    image: lblod/docker-monitor-service
+    image: redpencil/docker-monitor-service
     privileged: true
     userns_mode: "host"
     volumes:

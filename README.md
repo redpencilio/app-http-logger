@@ -64,11 +64,11 @@ docker-compose -f $YOUR_COMPOSE_FILE -f docker-compose.logging.yml -f docker-com
 
 ## Components
 
-* [docker-monitor-service](https://github.com/lblod/docker-monitor-service/): keeps track of running containers in the database
+* [docker-monitor-service](https://github.com/redpencilio/docker-monitor-service/): keeps track of running containers in the database
 
-* [docker-network-capture-service](https://github.com/lblod/docker-network-capture-service/): captures network traffic of docker containers as listed in the database. Optionally filters on a docker label.
+* [docker-network-capture-service](https://github.com/redpencilio/docker-network-capture-service/): captures network traffic of docker containers as listed in the database. Optionally filters on a docker label.
 
-* [file-encryption-service](https://github.com/lblod/file-encryption-service/): encrypts files
+* [file-encryption-service](https://github.com/redpencilio/file-encryption-service/): encrypts files
 
 * [http-logger-packetbeat-service](https://github.com/redpencilio/http-logger-packetbeat-service/): spawned by network capture service, monitors the traffic of the attached container.
 
