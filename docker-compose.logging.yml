@@ -34,8 +34,6 @@ services:
 
   logstash:
     image: docker.elastic.co/logstash/logstash-oss:7.8.1
-    ports:
-      - 5044
     logging:
       driver: "json-file"
       options:
