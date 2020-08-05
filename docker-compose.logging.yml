@@ -24,6 +24,7 @@ services:
     environment:
       CAPTURE_CONTAINER_FILTER: '?uri docker:label ?theLabel. ?theLabel docker:key "logging"'
       CAPTURE_SYNC_INTERVAL: 2500
+      MONITOR_IMAGE: "test-packetbeat"
     depends_on: # Ensures this service is stopped before the database stops.
       - database
     logging:
