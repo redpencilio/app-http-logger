@@ -26,6 +26,8 @@ services:
       - elasticsearch
     volumes:
       - ./config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    user: root
+    command: /usr/local/bin/kibana-docker --allow-root
     logging:
       driver: "json-file"
       options:

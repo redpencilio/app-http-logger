@@ -35,6 +35,7 @@ services:
 
   logstash:
     image: docker.elastic.co/logstash/logstash-oss:7.8.1
+    user: "root"
     logging:
       driver: "json-file"
       options:
