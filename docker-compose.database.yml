@@ -8,4 +8,4 @@ services:
       DEFAULT_GRAPH: "http://mu.semte.ch/application"
     volumes:
       - ./data/db:/data:rw
-      - ./data/db/virtuoso.ini:/data/virtuoso.ini
+      - ./data/db/virtuoso.ini:/data/virtuoso.ini:ro
