@@ -3,7 +3,7 @@ version: '3.6'
 services:
   logstash:
     volumes:
-      - ./config/encrypt-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./config/logstash/encrypt-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
       - logs:/usr/share/logstash/data:rw
     environment:
       LOGFILE_FORMAT_STRING: '/usr/share/logstash/data/audit/http-log-%{+YYYY-MM-dd-HH}.json'

@@ -3,7 +3,7 @@ version: '3.6'
 services:
   logstash:
     volumes:
-      - ./config/visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./config/logstash/visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.8.1
@@ -11,7 +11,7 @@ services:
       - 9200:9200
     volumes:
       - esdata:/usr/share/elasticsearch/data
-      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     logging:
       driver: "json-file"
       options:
@@ -25,7 +25,7 @@ services:
     depends_on:
       - elasticsearch
     volumes:
-      - ./config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+      - ./config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
     user: root
     command: /usr/local/bin/kibana-docker --allow-root
     logging:
