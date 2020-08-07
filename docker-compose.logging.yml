@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3.6'
 
 services:
   monitor:
@@ -25,7 +25,8 @@ services:
       CAPTURE_CONTAINER_FILTER: '?uri docker:label ?theLabel. ?theLabel docker:key "logging"'
       CAPTURE_SYNC_INTERVAL: 2500
       MONITOR_IMAGE: "redpencil/http-logger-packetbeat-service"
-    depends_on: # Ensures this service is stopped before the database stops.
+      LOGSTASH_NETWORK: "logstash-network"
+    depends_on: # Ensures this service is stopped before the db stops, because we need the db to clean up.
       - database
     logging:
       driver: "json-file"
@@ -36,8 +37,15 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash-oss:7.8.1
     user: "root"
+    networks:
+      - default
+      - logstash-network
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+
+networks:
+  logstash-network:
+    name: "logstash-network" # Explicitly set the name to prevent scoping w/ the compose project name
