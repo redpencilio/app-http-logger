@@ -9,6 +9,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       MONITOR_SYNC_INTERVAL: 2500
+    depends_on:
+      - database
     logging:
       driver: "json-file"
       options:
@@ -22,8 +24,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      CAPTURE_CONTAINER_FILTER: '?uri docker:label ?theLabel. ?theLabel docker:key "logging"'
-      CAPTURE_SYNC_INTERVAL: 2500
+      CAPTURE_CONTAINER_FILTER: '?uri docker:label/docker:key "logging".'
+      CAPTURE_SYNC_INTERVAL: 60000
       MONITOR_IMAGE: "redpencil/http-logger-packetbeat-service"
       LOGSTASH_NETWORK: "logstash-network"
     depends_on: # Ensures this service is stopped before the db stops, because we need the db to clean up.
