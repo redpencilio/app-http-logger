@@ -7,6 +7,7 @@ services:
       - logs:/usr/share/logstash/data:rw
     environment:
       LOGFILE_FORMAT_STRING: '/usr/share/logstash/data/audit/http-log-%{+YYYY-MM-dd-HH}.json'
+      LS_JAVA_OPTS: "-Xms512m -Xmx512m"
 
   encrypt:
     image: redpencil/file-encryption-service
