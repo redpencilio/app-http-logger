@@ -4,44 +4,57 @@ import json
 import requests
 import sys
 import os.path
+import subprocess
 
-# Read input
+# Get JSON events from file
+def get_events(filename, recipient, passphrase_file):
+    with open(filename) as f:
+        # Just read the file
+        if filename.endswith(".json"):
+            return [line.rstrip('\n') for line in f]
 
+        # Decrypt and then read the output
+        elif filename.endswith(".json.gpg"):
+            subproc = subprocess.run(["/bin/env", "gpg", "--decrypt", "--recipient", recipient, "--passphrase-file", passphrase_file, "--trust-model", "always"],
+                                     stdin=f, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            print(subproc.stderr.decode("utf-8"))
+            subproc.check_returncode()
+            return [line.rstrip('\n') for line in subproc.stdout.decode("utf-8").splitlines()]
+
+# Check input
 if len(sys.argv) < 4:
-    print("Usage: ./visualize-audit.py URL INDEX FILE...")
+    print("Usage: ./visualize-audit.py RECIPIENT PASSPHRASE_FILE URL INDEX FILE...")
     exit(1)
 
-url = sys.argv[1]
-
-index = sys.argv[2]
-
-for arg in sys.argv[3:]:
+for arg in sys.argv[5:]:
     if not os.path.isfile(arg):
         print("{0:s} is not a file.".format(arg))
-        print("Usage: ./visualize-audit.py URL INDEX FILE...")
+        print("Usage: ./visualize-audit.py RECIPIENT PASSPHRASE_FILE URL INDEX FILE...")
         exit(1)
 
-events = []
+# Assign variables
+url = sys.argv[3]
 
-for file in sys.argv[3:]:
-    with open(file) as f:
-        events += [line.rstrip('\n') for line in f]
-
-# Prepare input for request
+index = sys.argv[4]
 
 command = '{{ "index" : {{ "_index" : "{0:s}" }} }}'.format(index)
-
 def to_bulk_query(events):
     for event in events:
         yield command
         yield event
 
-# Send request to Bulk API
-bulkdata = '\n'.join([line for line in to_bulk_query(events)]) + '\n'
-headers = { 'content-type' : 'application/json' }
-r = requests.post("{0:s}/_bulk".format(url), data=bulkdata, headers=headers)
+# Send input to Bulk API file-per-file
+for filename in sys.argv[5:]:
+    # Get events in file
+    events = get_events(filename, sys.argv[1], sys.argv[2])
 
-print(bulkdata)
+    # Format events for Elasticsearch
+    bulkdata = '\n'.join([line for line in to_bulk_query(events)]) + '\n'
 
-print("Response: {0:d}".format(r.status_code))
-print(json.loads(r.text))
+    # Send request to Bulk API
+    headers = { 'content-type' : 'application/json' }
+    r = requests.post("{0:s}/_bulk".format(url), data=bulkdata, headers=headers)
+
+    # Print result
+    print("Response: {0:d}".format(r.status_code))
+    print(json.loads(r.text))
