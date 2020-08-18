@@ -14,8 +14,6 @@ services:
     volumes:
       - esdata:/usr/share/elasticsearch/data
       - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-    labels:
-      logging: "true"
     environment:
       ES_JAVA_OPTS: "-Xms256m -Xmx256m"
     logging:
