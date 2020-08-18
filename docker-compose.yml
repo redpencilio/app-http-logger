@@ -48,6 +48,48 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  triplestore:
+    image: tenforce/virtuoso:1.3.2-virtuoso7.2.2
+    environment:
+      SPARQL_UPDATE: "true"
+      DEFAULT_GRAPH: "http://mu.semte.ch/application"
+    volumes:
+      - ./data/db:/data:rw
+      - ./data/db/virtuoso.ini:/data/virtuoso.ini:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  database:
+    image: semtech/mu-authorization
+    depends_on:
+      - triplestore
+      - delta
+    volumes:
+      - ./config/authorization:/config:ro
+    environment:
+      MU_SPARQL_ENDPOINT: "http://triplestore:8890/sparql"
+      DATABASE_COMPATIBILITY: "Virtuoso"
+      # Debug logging
+#      LOG_SERVER_CONFIGURATION: "true"
+#      INSPECT_OUTGOING_SPARQL_QUERIES: "true"
+#      LOG_OUTGOING_SPARQL_QUERIES: "true"
+#      INSPECT_INCOMING_SPARQL_QUERIES: "true"
+#      LOG_INCOMING_SPARQL_QUERIES: "true"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  delta:
+    image: semtech/mu-delta-notifier:0.1.0
+    volumes:
+      - ./config/delta:/config:ro
+
 networks:
   logstash-network:
     name: "logstash-network" # Explicitly set the name to prevent scoping w/ the compose project name
+    driver: "bridge"
