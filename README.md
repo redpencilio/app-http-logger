@@ -19,6 +19,7 @@ docker-compose up -d
 
 Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index `http-log*` and click on 'discover'.
 
+
 ### Logging traffic and encrypting it
 
 Make sure you have a public GPG key available in the `./keys` directory and configure the correct recipient in the `docker-compose.encrypt.yml` file.
@@ -44,6 +45,28 @@ Now you can upload the files to ElasticSearch as such:
 Where `$RECIPIENT` is the identity used to encrypt the files.
 
 This will make the decrypted files available in the "audit" index. Now go to http://localhost:5601, add the "audit" index and you can search it.
+
+## Configuration
+### docker-compose.yml
+#### capture
+* `PACKETBEAT_LISTEN_PORTS` determines the ports on which traffic is logged.
+* `PACKETBEAT_MAX_MESSAGE_SIZE` determines the maximum size of a message before its content is no longer logged.
+* `CAPTURE_SYNC_INTERVAL` determines the interval in milliseconds between full syncs of monitor state from the database.
+* `MONITOR_IMAGE` is the name of the image for monitor containers. Note that this image is *always pulled* and thus **must** be a remote image.
+
+#### monitor
+* `MONITOR_SYNC_INTERVAL` is the interval in milliseconds between syncs of the docker state to the database and sending of deltas (if any).
+
+### docker-compose.encrypt.yml
+#### logstash
+* `LOGFILE_FORMAT_STRING` determines the name of the generated log files. `%{+YYYY-MM-dd}` is a time format string.
+
+#### encrypt
+* `ENCRYPT_RECIPIENT` is the e-mail address of the encryption key.
+* `ENCRYPT_AFTER_MINUTES` determines how many minutes a file must be unmodified before it will be encrypted.
+* `ENCRYPT_INTERVAL` determines how often the encrypt script runs.
+* `ENCRYPT_GLOB` determines which files are encrypted using a standard shell glob.
+
 
 ## Components
 
