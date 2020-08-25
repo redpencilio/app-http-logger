@@ -8,13 +8,14 @@ services:
       LS_JAVA_OPTS: "-Xms256m -Xmx256m"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.8.1
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.0
     ports:
       - 9200:9200
     volumes:
       - esdata:/usr/share/elasticsearch/data
       - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     environment:
+      http.max_content_length: 200MB
       ES_JAVA_OPTS: "-Xms256m -Xmx256m"
     logging:
       driver: "json-file"
@@ -23,15 +24,17 @@ services:
         max-file: "3"
 
   kibana:
-    image: docker.elastic.co/kibana/kibana-oss:7.8.1
+    image: docker.elastic.co/kibana/kibana-oss:7.6.2
     ports:
       - 5601:5601
     depends_on:
       - elasticsearch
     volumes:
       - ./config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+      - ./config/kibana/kbn_network_7.6.2_patched.tar.gz:/kbn_network.tar.gz:ro
     user: root
-    command: /usr/local/bin/kibana-docker --allow-root
+    # Probably the simplest way to install a plugin.
+    command: sh -c "/bin/tar -xf /kbn_network.tar.gz -C /usr/share/kibana/plugins; /usr/local/bin/kibana-docker --allow-root"
     logging:
       driver: "json-file"
       options:
