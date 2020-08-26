@@ -1,0 +1,37 @@
+{
+  "version": "1.0",
+  "scripts": [
+    {
+      "documentation": {
+        "command": "dashboard-import",
+        "description": "Import all dashboards from ./dashboards to Kibana",
+        "arguments": []
+      },
+      "environment": {
+        "image": "python:3.8-slim-buster",
+        "interactive": false,
+        "join_networks": true,
+        "script": "dashboard-import.sh"
+      },
+      "mounts": {
+        "app": "/project/"
+      }
+    },
+    {
+      "documentation": {
+        "command": "dashboard-export",
+        "description": "Export all dashboards from ./dashboards to Kibana",
+        "arguments": []
+      },
+      "environment": {
+        "image": "python:3.8-slim-buster",
+        "interactive": false,
+        "join_networks": true,
+        "script": "dashboard-export.sh"
+      },
+      "mounts": {
+        "app": "/project/"
+      }
+    }
+  ]
+}

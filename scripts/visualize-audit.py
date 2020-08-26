@@ -22,7 +22,7 @@ def get_events(filename, recipient, passphrase_file):
             return [line.rstrip('\n') for line in subproc.stdout.decode("utf-8").splitlines()]
 
 # Check input
-if len(sys.argv) < 4:
+if len(sys.argv) < 6:
     print("Usage: ./visualize-audit.py RECIPIENT PASSPHRASE_FILE URL INDEX FILE...")
     exit(1)
 

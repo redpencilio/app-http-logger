@@ -5,7 +5,10 @@ import requests
 import sys
 import pathlib
 
-dashboardDir = pathlib.Path('./dashboards')
+if len(sys.argv) < 3:
+    print("Usage: ./kibana-dashboard-import.py KIBANA-HOST DASHBOARD-DIR")
+
+dashboardDir = pathlib.Path(sys.argv[2])
 
 if not dashboardDir.is_dir():
     print("No 'dashboards' directory found under current folder")
@@ -15,5 +18,5 @@ for filePath in dashboardDir.iterdir():
     if not filePath.is_file():
         continue
 
-    r = requests.post("http://localhost:5601/api/kibana/dashboards/import", data=filePath.read_text(), headers={'kbn-xsrf' : 'true'})
+    r = requests.post("http://{0:s}/api/kibana/dashboards/import".format(sys.argv[1]), data=filePath.read_text(), headers={'kbn-xsrf' : 'true'})
     print(r.text);
