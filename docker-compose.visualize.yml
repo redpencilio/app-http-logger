@@ -12,7 +12,7 @@ services:
     ports:
       - 9200:9200
     volumes:
-      - esdata:/usr/share/elasticsearch/data
+      - ./data/esdata:/usr/share/elasticsearch/data
       - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     environment:
       http.max_content_length: 200MB
@@ -45,8 +45,6 @@ services:
         max-size: "10m"
         max-file: "3"
 
-volumes:
-  esdata:
   visualize-scripts:
     image: semtech/mu-scripts:1.0.0
     volumes:
