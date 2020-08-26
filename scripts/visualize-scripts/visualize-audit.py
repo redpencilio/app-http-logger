@@ -15,7 +15,7 @@ def get_events(filename, recipient, passphrase_file):
 
         # Decrypt and then read the output
         elif filename.endswith(".json.gpg"):
-            subproc = subprocess.run(["/bin/env", "gpg", "--decrypt", "--recipient", recipient, "--passphrase-file", passphrase_file, "--trust-model", "always"],
+            subproc = subprocess.run(["/usr/bin/gpg", "--decrypt", "--recipient", recipient, "--passphrase-file", passphrase_file, "--trust-model", "always"],
                                      stdin=f, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print(subproc.stderr.decode("utf-8"))
             subproc.check_returncode()

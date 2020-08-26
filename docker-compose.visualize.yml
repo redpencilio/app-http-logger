@@ -47,3 +47,8 @@ services:
 
 volumes:
   esdata:
+  visualize-scripts:
+    image: semtech/mu-scripts:1.0.0
+    volumes:
+      - ./scripts/visualize-scripts:/app/scripts/
+    restart: "no"

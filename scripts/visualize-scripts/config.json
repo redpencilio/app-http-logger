@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "scripts": [
+    {
+      "documentation": {
+        "command": "visualize-audit",
+        "description": "Decrypt and import logs into Elasticsearch. Expects a key in a file in the project root named 'gpg.key', and encrypted files in the 'encrypted' directory in the project root.",
+        "arguments": ["recipient"]
+      },
+      "environment": {
+        "image": "redpencil/app-http-logger-visualize-scripts",
+        "interactive": true,
+        "join_networks": true,
+        "script": "visualize-audit.sh"
+      },
+      "mounts": {
+        "app": "/project/"
+      }
+    }
+  ]
+}
