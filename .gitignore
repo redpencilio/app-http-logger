@@ -1,7 +1,4 @@
 # Utility directories
-containers/
-backups/
 keys/
 data/
-esdata/
 encrypted/
