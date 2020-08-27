@@ -13,7 +13,7 @@ app-http-logger is structured as three docker-compose files:
 
 ### Logging traffic and visualizing it
 This is the default mode of this project, so to start logging containers, simply run:
-```
+``` sh
 docker-compose up -d
 ```
 
@@ -25,7 +25,7 @@ Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, ad
 Make sure you have a public GPG key available in the `./keys` directory and configure the correct recipient in the `docker-compose.encrypt.yml` file.
 
 Then run the following command to attach logging and visualization to your docker-compose project:
-```
+``` sh
 docker-compose -f docker-compose.yml -f docker-compose.encrypt.yml up -d
 ```
 
@@ -35,16 +35,31 @@ Encrypted logs will be stored in the `./encrypted` directory.
 A script is provided that will automatically decrypt and upload encrypted logs to ElasticSearch.
 
 First, start the visualization stack:
-```
+``` sh
 docker-compose up -d
 ```
-Now you can upload the files to ElasticSearch as such:
+Now you can upload the files to ElasticSearch by placing the private key in the project root as `gpg.key` and running:
+``` sh
+mu script visualize-scripts visualize-audit $RECIPIENT
 ```
-./scripts/visualize-audit.py $RECIPIENT <(echo "your_passphrase_here") http://localhost:9200 audit encrypted/*
-```
-Where `$RECIPIENT` is the identity used to encrypt the files.
+Where `$RECIPIENT` is the identity associated with the private key.
 
 This will make the decrypted files available in the "audit" index. Now go to http://localhost:5601, add the "audit" index and you can search it.
+
+### Importing and exporting dashboards
+
+If you create dashboards to visualize logs, you can export these to JSON files and load them again later. The Kibana service must be started and ready to use these scripts.
+
+To export all of your dashboards, use:
+``` sh
+mu script kibana dashboard-export
+```
+This will create one JSON file per dashboard in the "dashboards" directory.
+
+To import dashboards, put the JSON files as created by the export script in the "dashboards" directory and run:
+``` sh
+mu script kibana dashboard-import
+```
 
 ## Configuration
 ### docker-compose.yml
