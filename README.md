@@ -82,6 +82,18 @@ mu script kibana dashboard-import
 * `ENCRYPT_INTERVAL` determines how often the encrypt script runs.
 * `ENCRYPT_GLOB` determines which files are encrypted using a standard shell glob.
 
+## Troubleshooting
+### Elasticsearch and/or Virtuoso fail to start
+This may be caused by a permissions problem in the mounted `data` directories, especially if Docker is running in a separate user namespace.
+
+A solution is to set the permissions for these directories to 777:
+``` sh
+chmod -R a+rwx data
+```
+But note that this makes the data in these directories **readable to anybody with any access to your system**.
+
+### Certain fields cannot be selected for aggregation or filtering
+Kibana determines which fields are available in an index when it first creates that index. If documents featuring new fields are added, those will not be available for aggregation or filtering. To fix this, go to Settings -> Index Patterns -> select your index -> click on the "refresh" button. This should add any new fields to the index.
 
 ## Components
 
