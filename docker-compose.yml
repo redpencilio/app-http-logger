@@ -30,7 +30,7 @@ services:
       LOGSTASH_NETWORK: "logstash-network"
       # Default configuration values for packetbeat
       PACKETBEAT_MAX_MESSAGE_SIZE: 102400 # Maximum total message size in bytes
-      PACKETBEAT_LISTEN_PORTS: "[80, 81, 88, 8080, 8890, 1111, 4200, 9229]" # YAML array of ports
+      PACKETBEAT_LISTEN_PORTS: "[80, 81, 88, 8080, 8081, 9200, 8890, 1111, 4200]" # YAML array of ports
     depends_on: # Ensures this service is stopped before the db stops, because we need the db to clean up.
       - database
     logging:
@@ -38,19 +38,36 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-
+  stats:
+    image: redpencil/docker-stats-service:latest
+    links:
+      - database:database
+    networks:
+      - default
+      - logstash-network
+    userns_mode: "host"
+    privileged: true
+    volumes:
+      - "/home/madnificent/code/javascript/docker-stats-service/:/app"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
   logstash:
     image: redpencil/http-logger-logstash-service
     user: "root"
     networks:
       - default
       - logstash-network
+    volumes:
+      - "./config/logstash/pipelines:/config/pipelines:ro"
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
-
   triplestore:
     image: tenforce/virtuoso:1.3.2-virtuoso7.2.2
     environment:

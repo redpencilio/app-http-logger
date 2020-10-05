@@ -3,10 +3,26 @@ version: '3.6'
 services:
   logstash:
     volumes:
-      - ./config/logstash/visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./config/logstash/pipelines/http-visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
     environment:
       LS_JAVA_OPTS: "-Xms256m -Xmx256m"
 
+  statsLogstash:
+    # image: docker.elastic.co/logstash/logstash-oss:7.9.0
+    image: redpencil/http-logger-logstash-service
+    user: "root"
+    volumes:
+      - ./config/logstash/pipelines/stats-visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    networks:
+      - default
+      - logstash-network
+  stats:
+    links:
+      - statsLogstash:logstash
+      - database:database
+    networks:
+      - default
+      - logstash-network
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.0
     ports:
