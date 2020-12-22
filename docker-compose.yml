@@ -38,16 +38,13 @@ services:
     logging: *default-logging
   stats:
     image: redpencil/docker-stats-service:latest
-    links:
-      - database:database
-    networks:
-      - default
-      - logstash-network
-    userns_mode: "host"
     privileged: true
+    userns_mode: "host"
+    links:
+      - statsLogstash:logstash
+      - database:database
     volumes:
-      - "/home/madnificent/code/javascript/docker-stats-service/:/app"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - /var/run/docker.sock:/var/run/docker.sock
     logging: *default-logging
   logstash:
     image: redpencil/http-logger-logstash-service:0.1.0
@@ -55,6 +52,12 @@ services:
     networks:
       - default
       - logstash-network
+    volumes:
+      - "./config/logstash/pipelines:/config/pipelines:ro"
+    logging: *default-logging
+  statsLogstash:
+    image: redpencil/http-logger-logstash-service:0.1.0
+    user: "root"
     volumes:
       - "./config/logstash/pipelines:/config/pipelines:ro"
     logging: *default-logging
