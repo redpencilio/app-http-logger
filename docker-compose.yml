@@ -1,5 +1,12 @@
 version: '3.6'
 
+x-logging:
+  &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   monitor:
     image: redpencil/docker-monitor-service
@@ -11,12 +18,7 @@ services:
       MONITOR_SYNC_INTERVAL: 5000
     depends_on:
       - database
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
+    logging: *default-logging
   capture:
     image: redpencil/docker-network-capture-service
     privileged: true
@@ -33,11 +35,7 @@ services:
       PACKETBEAT_LISTEN_PORTS: "[80, 81, 88, 8080, 8081, 9200, 8890, 1111, 4200]" # YAML array of ports
     depends_on: # Ensures this service is stopped before the db stops, because we need the db to clean up.
       - database
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    logging: *default-logging
   stats:
     image: redpencil/docker-stats-service:latest
     links:
@@ -50,11 +48,7 @@ services:
     volumes:
       - "/home/madnificent/code/javascript/docker-stats-service/:/app"
       - "/var/run/docker.sock:/var/run/docker.sock"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    logging: *default-logging
   logstash:
     image: redpencil/http-logger-logstash-service
     user: "root"
@@ -63,11 +57,7 @@ services:
       - logstash-network
     volumes:
       - "./config/logstash/pipelines:/config/pipelines:ro"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    logging: *default-logging
   triplestore:
     image: tenforce/virtuoso:1.3.2-virtuoso7.2.2
     environment:
@@ -76,12 +66,7 @@ services:
     volumes:
       - ./data/db:/data:rw
       - ./data/db/virtuoso.ini:/data/virtuoso.ini:ro
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
+    logging: *default-logging
   database:
     image: semtech/mu-authorization
     depends_on:
@@ -98,17 +83,11 @@ services:
 #      LOG_OUTGOING_SPARQL_QUERIES: "true"
 #      INSPECT_INCOMING_SPARQL_QUERIES: "true"
 #      LOG_INCOMING_SPARQL_QUERIES: "true"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
+    logging: *default-logging
   delta:
     image: semtech/mu-delta-notifier:0.1.0
     volumes:
       - ./config/delta:/config:ro
-
 networks:
   logstash-network:
     name: "logstash-network" # Explicitly set the name to prevent scoping w/ the compose project name

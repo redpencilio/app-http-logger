@@ -1,12 +1,19 @@
 version: '3.6'
 
+x-logging:
+  &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   logstash:
     volumes:
       - ./config/logstash/pipelines/http-visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
     environment:
       LS_JAVA_OPTS: "-Xms256m -Xmx256m"
-
+    logging: *default-logging
   statsLogstash:
     # image: docker.elastic.co/logstash/logstash-oss:7.9.0
     image: redpencil/http-logger-logstash-service
@@ -16,6 +23,7 @@ services:
     networks:
       - default
       - logstash-network
+    logging: *default-logging
   stats:
     links:
       - statsLogstash:logstash
@@ -23,6 +31,7 @@ services:
     networks:
       - default
       - logstash-network
+    logging: *default-logging
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.0
     ports:
@@ -33,12 +42,7 @@ services:
     environment:
       http.max_content_length: 200MB
       ES_JAVA_OPTS: "-Xms256m -Xmx256m"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
+    logging: *default-logging
   kibana:
     image: docker.elastic.co/kibana/kibana-oss:7.6.2
     ports:
@@ -55,12 +59,7 @@ services:
       sh -c "/bin/tar -xf /kbn_network.tar.gz -C /usr/share/kibana/plugins;
              /usr/local/bin/kibana-docker --allow-root;"
 
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
+    logging: *default-logging
   visualize-scripts:
     image: semtech/mu-scripts:1.0.0
     volumes:

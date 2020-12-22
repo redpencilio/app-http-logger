@@ -1,5 +1,12 @@
 version: '3.6'
 
+x-logging:
+  &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   logstash:
     volumes:
@@ -8,7 +15,7 @@ services:
     environment:
       LOGFILE_FORMAT_STRING: '/usr/share/logstash/data/audit/http-log-%{+YYYY-MM-dd-HH}.json'
       LS_JAVA_OPTS: "-Xms512m -Xmx512m"
-
+    logging: *default-logging
   encrypt:
     image: redpencil/file-encryption-service
     volumes:
@@ -21,11 +28,7 @@ services:
       ENCRYPT_GLOB: '/app/data/audit/http-log-*.json'
       ENCRYPTED_DIR: '/app/encrypted'
       #ENCRYPT_INTERVAL: 3600 # default value
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    logging: *default-logging
 
 volumes:
   logs:
