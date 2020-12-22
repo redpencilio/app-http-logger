@@ -17,7 +17,7 @@ services:
       LS_JAVA_OPTS: "-Xms512m -Xmx512m"
     logging: *default-logging
   encrypt:
-    image: redpencil/file-encryption-service
+    image: redpencil/file-encryption-service:1.1.0
     volumes:
       - logs:/app/data:rw
       - ./encrypted:/app/encrypted:rw

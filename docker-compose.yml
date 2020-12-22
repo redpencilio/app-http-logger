@@ -9,7 +9,7 @@ x-logging:
 
 services:
   monitor:
-    image: redpencil/docker-monitor-service
+    image: redpencil/docker-monitor-service:1.3.0
     privileged: true
     userns_mode: "host"
     volumes:
@@ -20,7 +20,7 @@ services:
       - database
     logging: *default-logging
   capture:
-    image: redpencil/docker-network-capture-service
+    image: redpencil/docker-network-capture-service:1.8.1
     privileged: true
     userns_mode: "host"
     volumes:
@@ -50,7 +50,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     logging: *default-logging
   logstash:
-    image: redpencil/http-logger-logstash-service
+    image: redpencil/http-logger-logstash-service:0.1.0
     user: "root"
     networks:
       - default
@@ -68,7 +68,7 @@ services:
       - ./data/db/virtuoso.ini:/data/virtuoso.ini:ro
     logging: *default-logging
   database:
-    image: semtech/mu-authorization
+    image: semtech/mu-authorization:0.6.0-beta.5
     depends_on:
       - triplestore
       - delta

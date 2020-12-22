@@ -15,8 +15,7 @@ services:
       LS_JAVA_OPTS: "-Xms256m -Xmx256m"
     logging: *default-logging
   statsLogstash:
-    # image: docker.elastic.co/logstash/logstash-oss:7.9.0
-    image: redpencil/http-logger-logstash-service
+    image: redpencil/http-logger-logstash-service:0.1.0
     user: "root"
     volumes:
       - ./config/logstash/pipelines/stats-visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
