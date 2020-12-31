@@ -8,16 +8,6 @@ x-logging:
     max-file: "3"
 
 services:
-  logstash:
-    volumes:
-      - ./config/logstash/pipelines/http-visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-    environment:
-      LS_JAVA_OPTS: "-Xms256m -Xmx256m"
-    logging: *default-logging
-  statsLogstash:
-    volumes:
-      - ./config/logstash/pipelines/stats-visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-    logging: *default-logging
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.0
     volumes:

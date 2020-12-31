@@ -7,7 +7,7 @@ echo
 passphrasefile=$(mktemp)
 echo "$passphrase" > "$passphrasefile"
 
-gpg --import /project/gpg.key
+gpg --import /project/keys/gpg.key
 
-python3 ./visualize-audit.py "$1" "$passphrasefile" 'http://elasticsearch:9200' audit /project/encrypted/*
+python3 ./visualize-audit.py "$1" "$passphrasefile" 'http://elasticsearch:9200' audit /project/data/encrypted/*
 rm "$passphrasefile"
