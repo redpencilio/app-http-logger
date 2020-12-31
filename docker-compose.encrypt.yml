@@ -10,7 +10,7 @@ x-logging:
 services:
   logstash:
     volumes:
-      - ./config/logstash/encrypt-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./config/logstash/pipelines/http-encrypt-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
       - logs:/usr/share/logstash/data:rw
     environment:
       LOGFILE_FORMAT_STRING: '/usr/share/logstash/data/audit/http-log-%{+YYYY-MM-dd-HH}.json'
@@ -19,14 +19,14 @@ services:
   encrypt:
     image: redpencil/file-encryption-service:1.1.0
     volumes:
-      - logs:/app/data:rw
-      - ./encrypted:/app/encrypted:rw
+      - logs:/data/logs:rw
+      - ./encrypted:/data/encrypted:rw
       - ./keys:/keys:ro
     environment:
       ENCRYPT_RECIPIENT: 'info@redpencil.io'
       ENCRYPT_AFTER_MINUTES: 60
-      ENCRYPT_GLOB: '/app/data/audit/http-log-*.json'
-      ENCRYPTED_DIR: '/app/encrypted'
+      ENCRYPT_GLOB: '/data/logs/audit/http-log-*.json'
+      ENCRYPTED_DIR: '/data/encrypted'
       #ENCRYPT_INTERVAL: 3600 # default value
     logging: *default-logging
 
