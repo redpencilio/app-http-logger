@@ -31,9 +31,9 @@ services:
       - ./data/encrypted/http:/data/encrypted:rw
       - ./keys:/keys:ro
     environment:
-      ENCRYPT_RECIPIENT: 'info@redpencil.io'
+      ENCRYPT_RECIPIENT: 'info@redpencil.io' # change to your GPG key id
       ENCRYPT_AFTER_MINUTES: 60
-      ENCRYPT_GLOB: '/data/logs/http/http-log-*.json'
+      ENCRYPT_GLOB: '/data/logs/http-log-*.json'
       ENCRYPTED_DIR: '/data/encrypted'
       #ENCRYPT_INTERVAL: 3600 # default value
     logging: *default-logging
