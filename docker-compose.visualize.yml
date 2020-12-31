@@ -20,8 +20,6 @@ services:
     logging: *default-logging
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.0
-    ports:
-      - 9200:9200
     volumes:
       - ./data/esdata:/usr/share/elasticsearch/data
       - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
@@ -31,8 +29,6 @@ services:
     logging: *default-logging
   kibana:
     image: docker.elastic.co/kibana/kibana-oss:7.6.2
-    ports:
-      - 5601:5601
     depends_on:
       - elasticsearch
     volumes:
