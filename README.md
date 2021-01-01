@@ -1,50 +1,76 @@
 # app-http-logger
 Provide out-of-the-box automatic logging of your running docker containers, and make the data available on ElasticSearch + Kibana for further analysis and visualization.
 
-## Usage 
+## Usage
 app-http-logger is structured as three docker-compose files:
-* `docker-compose.yml`: provides common base functionality: services to attach a Packetbeat monitor to every container, Logstash to send logs to, and database infrastructure.
-* `docker-compose.visualize.yml`: provides an ElasticSearch and Kibana container, and a Logstash pipeline that will push logs to Elasticsearch.
-* `docker-compose.encrypt.yml`: provides a Logstash pipeline that writes logs to a file, and an encryption service that will periodically encrypt the written logs.
+* `docker-compose.yml`: provides common base functionality: services to capture HTTP traffic and docker stats for every container; logstash services to handle captured logs; database infrastructure.
+* `docker-compose.encrypt.yml`: provides a Logstash pipeline that writes HTTP logs and stats to a file, and an encryption service that will periodically encrypt the written HTTP logs.
+* `docker-compose.live.yml`: provides a Logstash pipeline that pushes HTTP logs and stats directly to Elasticsearch for indexing and visualization.
+* `docker-compose.visualize.yml`: provides an ElasticSearch and Kibana container for indexing and visualization.
 
 **Only containers with a label called `logging` (with any value) will be monitored**. Do not forget to set this label.
 
-`docker-compose.visualize.yml` and `docker-compose.encrypt.yml` can at present not be used together, as they each create a separate Logstash pipeline that tries to listen on the same port for Packetbeat events.
+`docker-compose.encrypt.yml` and `docker-compose.live.yml` can at present not be used together, as they each create a separate Logstash pipeline that tries to listen on the same port for Packetbeat events.
 
-### Logging traffic and visualizing it
-This is the default mode of this project, so to start logging containers, simply run:
+### Logging traffic and directtly visualizing it
+This is the default mode of this project. To start logging containers, add the `logging` label to the containers you want to monitor.
+
+Start the app-http-logger by running:
 ``` sh
 docker-compose up -d
 ```
 
-Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index `http-log*` and click on 'discover'.
+Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index patterns `http-log*` and `stats-*` and click on 'discover'.
 
+### Logging traffic to (encrypted) files
+In this mode, data is captured and written to files. HTTP logs get encrypted, stats remain unencrypted. Visualization is not running live on the data.
 
-### Logging traffic and encrypting it
-
-Make sure you have a public GPG key available in the `./keys` directory and configure the correct recipient in the `docker-compose.encrypt.yml` file.
-
-Then run the following command to attach logging and visualization to your docker-compose project:
-``` sh
-docker-compose -f docker-compose.yml -f docker-compose.encrypt.yml up -d
+Update the `.env` file to use the following docker-compose files:
+```
+COMPOSE_FILE=docker-compose.yml:docker-compose.encrypt.yml
 ```
 
-Encrypted logs will be stored in the `./encrypted` directory.
+Make sure you have a public GPG key available in the `./keys` directory and configure the correct recipient (key id) in the `docker-compose.encrypt.yml` file. You can find the commands to generate a GPG key in [the README of the file-encryption-service](https://github.com/redpencilio/file-encryption-service).
 
-### Visualizing encrypted logs
-A script is provided that will automatically decrypt and upload encrypted logs to ElasticSearch.
+Add the `logging` label to the containers you want to monitor.
+
+Start the app-http-logger by running:
+``` sh
+docker-compose up -d
+```
+
+Plain text logs will be stored in `./data/logs`. Encrypted logs will be stored in the `./data/encrypted` directory.
+
+### Visualizing (encrypted) logs from files
+In this mode, only the services for visualization are started. Scripts are provided to import encrypted log files and unencrypted stats files in Elasticsearch. The stack doesn't need to run on the same server where the data is captured.
+
+Update the `.env` file to use the following docker-compose files:
+```
+COMPOSE_FILE=docker-compose.visualize.yml
+```
 
 First, start the visualization stack:
 ``` sh
 docker-compose up -d
 ```
-Now you can upload the files to ElasticSearch by placing the private key in the project root as `gpg.key` and running:
-``` sh
-mu script visualize-scripts visualize-audit $RECIPIENT
-```
-Where `$RECIPIENT` is the identity associated with the private key.
 
-This will make the decrypted files available in the "audit" index. Now go to http://localhost:5601, add the "audit" index and you can search it.
+Put the private GPG key `gpg.key` in `./keys`. This key will be used for decryption.
+
+Put the encrypted logs files in `./data/encrypted/http`
+
+Execute the following mu-script to import the encrypted logs files with the correct recipient (key id) for the GPG key:
+``` sh
+mu script visualize-scripts http $RECIPIENT
+```
+
+Put the unencrypted stats files in `./data/logs/stats`
+
+Execute the following mu-script to import the stats files:
+``` sh
+mu script visualize-scripts stats
+```
+
+Logs will be visible in Kibana at `http://localhost:5601`. Add the index patterns `http-log*` and `stats-*` and click on 'discover'.
 
 ### Importing and exporting dashboards
 
