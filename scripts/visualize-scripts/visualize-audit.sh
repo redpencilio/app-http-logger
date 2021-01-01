@@ -7,7 +7,7 @@ echo
 passphrasefile=$(mktemp)
 echo "$passphrase" > "$passphrasefile"
 
-gpg --import /project/keys/gpg.key
+echo "$passphrase" | gpg --import --pinentry-mode loopback /project/keys/gpg.key
 
-python3 ./visualize-audit.py "$1" "$passphrasefile" 'http://elasticsearch:9200' audit /project/data/encrypted/*
+python3 ./visualize-audit.py "$1" "$passphrasefile" 'http://elasticsearch:9200' http-log /project/data/encrypted/http/*
 rm "$passphrasefile"

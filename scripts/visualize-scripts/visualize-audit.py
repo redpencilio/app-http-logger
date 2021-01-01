@@ -15,7 +15,7 @@ def get_events(filename, recipient, passphrase_file):
 
         # Decrypt and then read the output
         elif filename.endswith(".json.gpg"):
-            subproc = subprocess.run(["/usr/bin/gpg", "--decrypt", "--recipient", recipient, "--passphrase-file", passphrase_file, "--trust-model", "always"],
+            subproc = subprocess.run(["/usr/bin/gpg", "--decrypt", "--recipient", recipient, "--passphrase-file", passphrase_file, "--trust-model", "always", "--batch", "--pinentry-mode", "loopback"],
                                      stdin=f, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print(subproc.stderr.decode("utf-8"))
             subproc.check_returncode()
@@ -48,13 +48,17 @@ for filename in sys.argv[5:]:
     # Get events in file
     events = get_events(filename, sys.argv[1], sys.argv[2])
 
-    # Format events for Elasticsearch
-    bulkdata = '\n'.join([line for line in to_bulk_query(events)]) + '\n'
+    if events:
+        # Format events for Elasticsearch
+        bulkdata = '\n'.join([line for line in to_bulk_query(events)]) + '\n'
+        bulkdata = bulkdata.encode(encoding='utf-8')
 
-    # Send request to Bulk API
-    headers = { 'content-type' : 'application/json' }
-    r = requests.post("{0:s}/_bulk".format(url), data=bulkdata, headers=headers)
+        # Send request to Bulk API
+        headers = { 'content-type' : 'application/json' }
+        r = requests.post("{0:s}/_bulk".format(url), data=bulkdata, headers=headers)
 
-    # Print result
-    print("Response: {0:d}".format(r.status_code))
-    print(json.loads(r.text))
+        # Print result
+        print("Ingested file: {0:s}".format(filename))
+        print("Response: {0:d}".format(r.status_code))
+    else:
+        print("Skipped file: {0:s}".format(filename))
