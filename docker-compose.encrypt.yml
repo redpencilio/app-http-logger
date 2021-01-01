@@ -16,7 +16,7 @@ services:
       LOGFILE_FORMAT_STRING: '/usr/share/logstash/data/http-log-%{+YYYY-MM-dd-HH}.json'
       LS_JAVA_OPTS: "-Xms512m -Xmx512m"
     logging: *default-logging
-  statsLogstash:
+  stats-logstash:
     volumes:
       - ./config/logstash/pipelines/stats-file-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
       - ./data/logs/stats:/usr/share/logstash/data:rw

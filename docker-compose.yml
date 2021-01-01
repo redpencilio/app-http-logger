@@ -41,7 +41,7 @@ services:
     privileged: true
     userns_mode: "host"
     links:
-      - statsLogstash:logstash
+      - stats-logstash:logstash
       - database:database
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -55,7 +55,7 @@ services:
     volumes:
       - "./config/logstash/pipelines:/config/pipelines:ro"
     logging: *default-logging
-  statsLogstash:
+  stats-logstash:
     image: redpencil/http-logger-logstash-service:0.1.0
     user: "root"
     volumes:

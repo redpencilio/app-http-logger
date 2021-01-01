@@ -14,7 +14,7 @@ services:
     environment:
       LS_JAVA_OPTS: "-Xms256m -Xmx256m"
     logging: *default-logging
-  statsLogstash:
+  stats-logstash:
     volumes:
       - ./config/logstash/pipelines/stats-visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
     logging: *default-logging
