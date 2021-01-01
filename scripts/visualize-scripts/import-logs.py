@@ -23,13 +23,13 @@ def get_events(filename, recipient, passphrase_file):
 
 # Check input
 if len(sys.argv) < 6:
-    print("Usage: ./visualize-audit.py RECIPIENT PASSPHRASE_FILE URL INDEX FILE...")
+    print("Usage: ./import-logs.py RECIPIENT PASSPHRASE_FILE URL INDEX FILE...")
     exit(1)
 
 for arg in sys.argv[5:]:
     if not os.path.isfile(arg):
         print("{0:s} is not a file.".format(arg))
-        print("Usage: ./visualize-audit.py RECIPIENT PASSPHRASE_FILE URL INDEX FILE...")
+        print("Usage: ./import-logs.py RECIPIENT PASSPHRASE_FILE URL INDEX FILE...")
         exit(1)
 
 # Assign variables

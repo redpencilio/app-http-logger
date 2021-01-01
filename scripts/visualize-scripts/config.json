@@ -3,15 +3,31 @@
   "scripts": [
     {
       "documentation": {
-        "command": "visualize-audit",
-        "description": "Decrypt and import logs into Elasticsearch. Expects a key in a file in the project root named 'gpg.key', and encrypted files in the 'encrypted' directory in the project root.",
+        "command": "http",
+        "description": "Decrypt and import HTTP logs into Elasticsearch. Expects a private key in a file in the './keys' folder named 'gpg.key', and encrypted files in the './data/encrypted/http' directory.",
         "arguments": ["recipient"]
       },
       "environment": {
         "image": "redpencil/app-http-logger-visualize-scripts",
         "interactive": true,
         "join_networks": true,
-        "script": "visualize-audit.sh"
+        "script": "http.sh"
+      },
+      "mounts": {
+        "app": "/project/"
+      }
+    },
+    {
+      "documentation": {
+        "command": "stats",
+        "description": "Import unencrypted stats into Elasticsearch. Expect stats files in the './data/logs/stats' directory.",
+        "arguments": []
+      },
+      "environment": {
+        "image": "redpencil/app-http-logger-visualize-scripts",
+        "interactive": true,
+        "join_networks": true,
+        "script": "stats.sh"
       },
       "mounts": {
         "app": "/project/"
