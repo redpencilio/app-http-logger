@@ -20,7 +20,7 @@ Start the app-http-logger by running:
 docker-compose up -d
 ```
 
-Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index patterns `http-log*` and `stats-*` and click on 'discover'.
+Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index patterns `http-log*` and `stats*` and click on 'discover'.
 
 ### Logging traffic to (encrypted) files
 In this mode, data is captured and written to files. HTTP logs get encrypted, stats remain unencrypted. Visualization is not running live on the data.
@@ -70,7 +70,7 @@ Execute the following mu-script to import the stats files:
 mu script visualize-scripts stats
 ```
 
-Logs will be visible in Kibana at `http://localhost:5601`. Add the index patterns `http-log*` and `stats-*` and click on 'discover'.
+Logs will be visible in Kibana at `http://localhost:5601`. Add the index patterns `http-log*` and `stats*` and click on 'discover'.
 
 ### Importing and exporting dashboards
 
