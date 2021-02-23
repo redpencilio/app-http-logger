@@ -95,6 +95,10 @@ mu script kibana dashboard-import
 * `CAPTURE_SYNC_INTERVAL` determines the interval in milliseconds between full syncs of monitor state from the database.
 * `MONITOR_IMAGE` is the name of the image for monitor containers. Note that this image is *always pulled* and thus **must** be a remote image.
 
+#### stats
+* `QUERY_INTERVAL` Interval (in ms) by which the service should fetch new stats.
+
+
 #### monitor
 * `MONITOR_SYNC_INTERVAL` is the interval in milliseconds between syncs of the docker state to the database and sending of deltas (if any).
 
@@ -126,6 +130,8 @@ Kibana determines which fields are available in an index when it first creates t
 * [docker-monitor-service](https://github.com/redpencilio/docker-monitor-service/): keeps track of running containers in the database.
 
 * [docker-network-capture-service](https://github.com/redpencilio/docker-network-capture-service/): spawns packetbeat containers to monitor other containers.
+
+* [docker-stats-service](https://github.com/redpencilio/docker-stats-service): fetches Docker stats and dumps them into logstash.
 
 * [file-encryption-service](https://github.com/redpencilio/file-encryption-service/): encrypts logfiles.
 
