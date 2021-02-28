@@ -35,7 +35,7 @@ services:
       - database
     logging: *default-logging
   stats:
-    image: redpencil/docker-stats-service:0.0.1
+    image: redpencil/docker-stats-service:0.0.2
     privileged: true
     userns_mode: "host"
     links:
