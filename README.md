@@ -89,6 +89,9 @@ mu script kibana dashboard-import
 
 ## Configuration
 ### docker-compose.yml
+#### monitor
+* `MONITOR_SYNC_INTERVAL`: default: `10000` is the interval in milliseconds between syncs of the docker daemon container state to the database resulting in deltas being sent (if any update to the containers on the system occurred).
+
 #### capture
 * `PACKETBEAT_LISTEN_PORTS` determines the ports on which traffic is logged.
 * `PACKETBEAT_MAX_MESSAGE_SIZE` determines the maximum size of a message before its content is no longer logged.
@@ -97,10 +100,6 @@ mu script kibana dashboard-import
 
 #### stats
 * `QUERY_INTERVAL` Interval (in ms) by which the service should fetch new stats.
-
-
-#### monitor
-* `MONITOR_SYNC_INTERVAL` is the interval in milliseconds between syncs of the docker state to the database and sending of deltas (if any).
 
 ### docker-compose.encrypt.yml
 #### logstash
