@@ -12,7 +12,7 @@ app-http-logger is structured as three docker-compose files:
 
 `docker-compose.encrypt.yml` and `docker-compose.live.yml` can at present not be used together, as they each create a separate Logstash pipeline that tries to listen on the same port for Packetbeat events.
 
-### Logging traffic and directtly visualizing it
+### Logging traffic and directly visualizing it
 This is the default mode of this project. To start logging containers, add the `logging` label to the containers you want to monitor.
 
 Start the app-http-logger by running:
