@@ -26,7 +26,7 @@ services:
     environment:
       CAPTURE_CONTAINER_FILTER: '?uri docker:label/docker:key "logging".'
       CAPTURE_SYNC_INTERVAL: 60000
-      MONITOR_IMAGE: "redpencil/http-logger-packetbeat-service"
+      MONITOR_IMAGE: "redpencil/http-logger-packetbeat-service:1.6.0"
       LOGSTASH_NETWORK: "logstash-network"
       # Default configuration values for packetbeat
       PACKETBEAT_MAX_MESSAGE_SIZE: 102400 # Maximum total message size in bytes
