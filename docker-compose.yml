@@ -18,7 +18,7 @@ services:
       MONITOR_SYNC_INTERVAL: 10000
     logging: *default-logging
   capture:
-    image: redpencil/docker-network-capture-service:1.8.3
+    image: redpencil/docker-network-capture-service:1.8.4
     privileged: true
     userns_mode: "host"
     volumes:
