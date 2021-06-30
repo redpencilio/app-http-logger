@@ -37,3 +37,11 @@ services:
       ENCRYPTED_DIR: '/data/encrypted'
       #ENCRYPT_INTERVAL: 3600 # default value
     logging: *default-logging
+  stats-compress:
+    image: redpencil/file-compression-service:1.0.0
+    volumes:
+      - ./data/logs/stats:/data/logs:rw
+      - ./data/compressed/stats:/data/compressed:rw
+    environment:
+      COMPRESSION_GLOB: '/data/logs/stats-*.json'
+    logging: *default-logging
