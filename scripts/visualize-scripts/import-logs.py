@@ -5,21 +5,33 @@ import requests
 import sys
 import os.path
 import subprocess
+import tarfile
+import codecs
 
 # Get JSON events from file
 def get_events(filename, recipient, passphrase_file):
-    with open(filename) as f:
-        # Just read the file
-        if filename.endswith(".json"):
+    # Untar and then read the output
+    if filename.endswith(".json.tar.gz"):
+        tar = tarfile.open(filename)
+        reader = codecs.getreader("utf-8")
+        for member in tar.getmembers():
+            memberfile = tar.extractfile(member)
+            f = reader(memberfile)
             return [line.rstrip('\n') for line in f]
 
-        # Decrypt and then read the output
-        elif filename.endswith(".json.gpg"):
-            subproc = subprocess.run(["/usr/bin/gpg", "--decrypt", "--recipient", recipient, "--passphrase-file", passphrase_file, "--trust-model", "always", "--batch", "--pinentry-mode", "loopback"],
-                                     stdin=f, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print(subproc.stderr.decode("utf-8"))
-            subproc.check_returncode()
-            return [line.rstrip('\n') for line in subproc.stdout.decode("utf-8").splitlines()]
+    else:
+        with open(filename) as f:
+            # Just read the file
+            if filename.endswith(".json"):
+                return [line.rstrip('\n') for line in f]
+
+            # Decrypt and then read the output
+            elif filename.endswith(".json.gpg"):
+                subproc = subprocess.run(["/usr/bin/gpg", "--decrypt", "--recipient", recipient, "--passphrase-file", passphrase_file, "--trust-model", "always", "--batch", "--pinentry-mode", "loopback"],
+                                         stdin=f, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                print(subproc.stderr.decode("utf-8"))
+                subproc.check_returncode()
+                return [line.rstrip('\n') for line in subproc.stdout.decode("utf-8").splitlines()]
 
 # Check input
 if len(sys.argv) < 6:

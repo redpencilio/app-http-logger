@@ -4,7 +4,7 @@ Provide out-of-the-box automatic logging of your running docker containers, and 
 ## Usage
 app-http-logger is structured as three docker-compose files:
 * `docker-compose.yml`: provides common base functionality: services to capture HTTP traffic and docker stats for every container; logstash services to handle captured logs; database infrastructure.
-* `docker-compose.encrypt.yml`: provides a Logstash pipeline that writes HTTP logs and stats to a file, and an encryption service that will periodically encrypt the written HTTP logs.
+* `docker-compose.encrypt.yml`: provides a Logstash pipeline that writes HTTP logs and stats to a file, and an encryption/compression service that will periodically encrypt/compress the written HTTP/stats logs.
 * `docker-compose.live.yml`: provides a Logstash pipeline that pushes HTTP logs and stats directly to Elasticsearch for indexing and visualization.
 * `docker-compose.visualize.yml`: provides an ElasticSearch and Kibana container for indexing and visualization.
 
@@ -39,10 +39,10 @@ Start the app-http-logger by running:
 docker-compose up -d
 ```
 
-Plain text logs will be stored in `./data/logs`. Encrypted logs will be stored in the `./data/encrypted` directory.
+Plain text logs will be stored in `./data/logs`. Encrypted logs will be stored in the `./data/encrypted` directory. Compressed logs will be stored in `./data/compressed`.
 
 ### Visualizing (encrypted) logs from files
-In this mode, only the services for visualization are started. Scripts are provided to import encrypted log files and unencrypted stats files in Elasticsearch. The stack doesn't need to run on the same server where the data is captured.
+In this mode, only the services for visualization are started. Scripts are provided to import encrypted log files and compressed stats files in Elasticsearch. The stack doesn't need to run on the same server where the data is captured.
 
 Update the `.env` file to use the following docker-compose files:
 ```
@@ -63,7 +63,7 @@ Execute the following mu-script to import the encrypted logs files with the corr
 mu script visualize-scripts http $RECIPIENT
 ```
 
-Put the unencrypted stats files in `./data/logs/stats`
+Put the compressed stats files in `./data/compressed/stats`
 
 Execute the following mu-script to import the stats files:
 ``` sh
@@ -107,9 +107,7 @@ mu script kibana dashboard-import
 
 #### encrypt
 * `ENCRYPT_RECIPIENT` is the e-mail address of the encryption key.
-* `ENCRYPT_AFTER_MINUTES` determines how many minutes a file must be unmodified before it will be encrypted.
-* `ENCRYPT_INTERVAL` determines how often the encrypt script runs.
-* `ENCRYPT_GLOB` determines which files are encrypted using a standard shell glob.
+* Additional configuration is documented in the [README of the service](https://github.com/redpencilio/file-encryption-service)
 
 ## Troubleshooting
 ### Elasticsearch and/or Virtuoso fail to start
@@ -133,6 +131,8 @@ Kibana determines which fields are available in an index when it first creates t
 * [docker-stats-service](https://github.com/redpencilio/docker-stats-service): fetches Docker stats and dumps them into logstash.
 
 * [file-encryption-service](https://github.com/redpencilio/file-encryption-service/): encrypts logfiles.
+
+* [file-compression-service](https://github.com/redpencilio/file-compression-service/): compresses logfiles.
 
 * [http-logger-packetbeat-service](https://github.com/redpencilio/http-logger-packetbeat-service/): spawned by network capture service, monitors the traffic of the attached container.
 
