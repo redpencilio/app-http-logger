@@ -54,6 +54,8 @@ def decrypt_file(source_path, destination_folder, gpg_instance, passphrase):
 
 def es_ingest_file(file_path, es_host, es_index_name):
     with open(file_path, "rt") as file:
+        # Streaming multiple GB's to the ES "/_bulk" endpoint in a single request causes memory issues in ES
+        # Making one request per log-line on the other hand seems slow.
         for line in file:
             es_command = es_command_template.substitute(index_name=es_index_name, payload=line).encode('utf-8')
             headers = { 'content-type' : 'application/json' }
