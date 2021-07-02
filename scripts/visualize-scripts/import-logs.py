@@ -94,6 +94,6 @@ if __name__ == '__main__':
 
             logging.info("Ingesting file '{}' into ES".format(ingest_path))
             es_ingest_file(ingest_path, es_host, es_index_name)
-            # print("Ingested file: {0:s}".format(filename))
+            logging.info("Succesfully ingested file: {}".format(ingest_path))
         else:
             logging.error("'{}' is not a file. Skipping".format(file_path))
