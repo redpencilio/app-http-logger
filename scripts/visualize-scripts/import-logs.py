@@ -4,7 +4,7 @@ import sys
 import os.path
 import logging
 import tarfile
-import codecs
+from string import Template
 import requests
 import gnupg
 
@@ -14,72 +14,84 @@ UNENCRYPTED_LOGS_FOLDER = "/project/data/logs/http"
 def strip_newlines(file):
     return list(line.rstrip('\n') for line in file)
 
-def yield_files_from_filename(file_path, gpg_instance, passphrase):
+def preprocess_file(file_path, destination_folder, gpg_instance, passphrase):
     """ Yields file-like objects containing JSON.
         Since this functions also takes archive files, one filename can potentially yield multiple file-like objects
     """
     filename = os.path.split(file_path)[1]
     if filename.endswith(".json.tar.gz"): # Untar and then read the output
-        with tarfile.open(file_path) as tar:
-            reader = codecs.getreader("utf-8")
-            for member in tar.getmembers():
-                memberfile = tar.extractfile(member)
-                yield reader(memberfile)
-    elif filename.endswith(".json"):
-        with open(file_path) as f:
-            yield f
+        return extract_file(file_path, destination_folder)
     elif filename.endswith(".json.gpg"): # Decrypt and then read the output
-        unencrypted_filename = filename.replace('.json.gpg', '.json')
-        output_path = os.path.join(UNENCRYPTED_LOGS_FOLDER, unencrypted_filename)
-        with open(file_path, "rb") as f:
-            logging.info("Starting decryption for {} ...".format(file_path))
+        return decrypt_file(file_path, destination_folder, gpg_instance, passphrase)
+    else:
+        raise Exception("Unknown file type for file {}".format(filename))
+
+def extract_file(source_path, destination_folder):
+    filename = os.path.split(file_path)[1]
+    extracted_filename = filename.replace('.tar.gz', '')
+    dest_path = os.path.join(destination_folder, extracted_filename)
+    if os.path.exists(dest_path):
+        logging.info("An extracted version of '{}' already exists in '{}'. Skipping extraction ...".format(filename, destination_folder))
+    else:
+        logging.info("Starting extraction of {} ...".format(filename))
+        with tarfile.open(source_path) as tar:
+            tar.extract(extracted_filename, destination_folder)
+    return dest_path
+
+def decrypt_file(source_path, destination_folder, gpg_instance, passphrase):
+    filename = os.path.split(file_path)[1]
+    unencrypted_filename = filename.replace('.json.gpg', '.json')
+    output_path = os.path.join(destination_folder, unencrypted_filename)
+    if os.path.exists(output_path):
+        logging.info("An unencrypted version of '{}' already exists in '{}'. Skipping decryption ...".format(filename, destination_folder))
+    else:
+        logging.info("Starting decryption of {} ...".format(source_path))
+        with open(source_path, "rb") as f:
             decryption_status = gpg_instance.decrypt_file(f, passphrase=passphrase, always_trust=True, output=output_path)
             if not decryption_status.ok:
                 raise Exception("GPG Decryption failed: {}".format(decryption_status.status))
-            yield yield_files_from_filename(output_path, gpg_instance, passphrase)
+    return output_path
 
-# Check input
-if len(sys.argv) < 6:
-    print("Usage: ./import-logs.py RECIPIENT PASSPHRASE_FILE URL INDEX FILE...")
-    exit(1)
-
-for arg in sys.argv[5:]:
-    if not os.path.isfile(arg):
-        print("{0:s} is not a file.".format(arg))
-        print("Usage: ./import-logs.py RECIPIENT PASSPHRASE_FILE URL INDEX FILE...")
-        exit(1)
-
-# Assign variables
-url = sys.argv[3]
-
-index = sys.argv[4]
-
-command = '{{ "index" : {{ "_index" : "{0:s}" }} }}'.format(index)
-def to_bulk_query(events):
-    for event in events:
-        yield command + '\n'
-        yield event + '\n'
-
-logging.info("Initializing Python gpg")
-gpg = gnupg.GPG(gnupghome=GPG_HOME_FOLDER)
-
-# Send input to Bulk API file-per-file
-for filename in sys.argv[5:]:
-    print("Ingesting file: {0:s}".format(filename))
-    try:
-        for file in yield_files_from_filename(filename, gpg, sys.argv[2]):
-            bulkdata = to_bulk_query(file)
-
-            # Send request to Bulk API
+def es_ingest_file(file_path, es_host, es_index_name):
+    with open(file_path, "rt") as file:
+        for line in file:
+            es_command = es_command_template.substitute(index_name=es_index_name, payload=line).encode('utf-8')
             headers = { 'content-type' : 'application/json' }
-            print("Started streaming")
-
-            response = requests.post("{0:s}/_bulk".format(url), data=bulkdata, headers=headers, timeout=10)
+            response = requests.post("{}/_bulk".format(es_host), data=es_command, headers=headers)
             response.raise_for_status()
-            
-            # Print result
-            print("Ingested file: {0:s}".format(filename))
-            print("Response: {0:d}".format(response.status_code))
-    except Exception as e:
-        print("Skipped file: {0:s}".format(filename))
-        raise e
+
+# https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-bulk.html#docs-bulk-api-desc
+es_command_template = Template("""
+{ "index": { "_index": "$index_name" } }
+$payload
+""")
+
+def init_gpg():
+    logging.info("Initializing Python gpg")
+    return gnupg.GPG(gnupghome=GPG_HOME_FOLDER)
+
+if __name__ == '__main__':
+    logging.getLogger().setLevel(logging.INFO)
+    # Args validation
+    if len(sys.argv) < 6:
+        logging.error("Usage: ./import-logs.py RECIPIENT PASSPHRASE URL INDEX FILE...")
+        sys.exit(1)
+    # recipient currently unused
+    gpg_passphrase = sys.argv[2]
+    es_host = sys.argv[3]
+    es_index_name = sys.argv[4]
+    gpg_instance = init_gpg()
+
+    for file_path in sys.argv[5:]:
+        if os.path.isfile(file_path):
+            if os.path.splitext(file_path) != ".json":
+                logging.info("File '{}' needs preprocessing before being able to ingest in ES".format(file_path))
+                ingest_path = preprocess_file(file_path, UNENCRYPTED_LOGS_FOLDER, gpg_instance, gpg_passphrase)
+            else:
+                ingest_path = file_path
+
+            logging.info("Ingesting file '{}' into ES".format(ingest_path))
+            es_ingest_file(ingest_path, es_host, es_index_name)
+            # print("Ingested file: {0:s}".format(filename))
+        else:
+            logging.error("'{}' is not a file. Skipping".format(file_path))
