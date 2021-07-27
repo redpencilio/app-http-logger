@@ -58,7 +58,7 @@ def decrypt_file(source_path, destination_folder, passphrase):
     else:
         logging.info("Starting decryption of {} ...".format(source_path))
         with open(source_path, "rb") as f:
-            decryption_status = gpg_instance.decrypt_file(f, passphrase=passphrase, always_trust=True, output=output_path, extra_args=["-v"])
+            decryption_status = gpg_instance.decrypt_file(f, passphrase=passphrase, always_trust=True, output=output_path) # debug with `extra_args=["-v"]`
             if not decryption_status.ok:
                 raise Exception("GPG Decryption failed: {}".format(decryption_status.status))
     return output_path
