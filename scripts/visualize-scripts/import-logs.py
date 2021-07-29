@@ -12,8 +12,39 @@ import gnupg
 GPG_HOME_FOLDER = "/root/.gnupg"
 UNENCRYPTED_LOGS_FOLDER = "/project/data/logs/http"
 
+# utils
 def strip_newlines(file):
     return list(line.rstrip('\n') for line in file)
+
+def batch_iterator(itor, batch_size):
+    line_index = 0
+    while True:
+        batches = []
+        i = 0
+        is_last = False
+
+        # get list of batch items
+        while i < batch_size:
+            try:
+                it = next(itor)
+            except StopIteration:
+                is_last = True
+                break
+
+            batches.append(it)
+            i = i + 1
+
+        # create batch result
+        result = (batches, (line_index, line_index + i))
+
+        is_present = i > 0
+        if not is_last or is_present:
+            yield result
+
+        if is_last:
+            return
+
+        line_index = line_index + batch_size
 
 def preprocess_file(file_path, destination_folder, passphrase):
     """ Yields file-like objects containing JSON.
@@ -67,32 +98,27 @@ def es_ingest_file(file_path, es_host, es_index_name, batch_size):
     with open(file_path, "rt") as file:
         # Streaming multiple GB's to the ES "/_bulk" endpoint in a single request causes memory issues in ES
         # Making one request per log-line on the other hand seems slow.
-        file_itor = batch(file, batch_size)
+        file_itor = batch_iterator(file, batch_size)
 
-        for lines in file_itor:
-            lines_str = "".join(lines)
-
-            es_command = es_command_template.substitute(index_name=es_index_name, payload=lines_str).encode('utf-8')
+        
+        for (lines, indices) in file_itor:
+            es_bulk_command = generate_bulk_index_command(es_index_name, lines)
             headers = { 'content-type' : 'application/json' }
-            response = requests.post("{}/_bulk".format(es_host), data=es_command, headers=headers)
+            response = requests.post("{}/_bulk".format(es_host), data=es_bulk_command, headers=headers)
+
+            if response.status_code == 429: # Too Many Requests
+                logging.error("Probably batch size too large", file_path, indices)
+            
             response.raise_for_status()
 
-def batch(itor, batch_size):
-    while True:
-        i = 0
-        batches = []
-
-        try: 
-            while (i < batch_size):
-                it = next(itor)
-                batches.append(it)
-                i = i + 1
-            yield batches
-        except StopIteration as err:
-            # last batch
-            if i > 0:
-                yield batches
-            break
+def generate_bulk_index_command(es_index_name, lines):
+    command_builder = []
+    for line_str in lines:
+        # line_str includes new line characters, like elastic search expects
+        command = es_command_template.substitute(index_name=es_index_name, payload=line_str)
+        command_builder.append(command)
+    
+    return "".join(command_builder).encode('utf-8')
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-bulk.html#docs-bulk-api-desc
 es_command_template = Template("""
@@ -103,15 +129,18 @@ $payload
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
     # Args validation
-    if len(sys.argv) < 6:
-        logging.error("Usage: ./import-logs.py RECIPIENT PASSPHRASE URL INDEX FILE...")
+    if len(sys.argv) < 7:
+        logging.error("Usage: ./import-logs.py RECIPIENT PASSPHRASE URL INDEX BATCH_SIZE FILE...")
         sys.exit(1)
     # recipient currently unused
     gpg_passphrase = sys.argv[2]
     es_host = sys.argv[3]
     es_index_name = sys.argv[4]
+    es_batch_sizes = sys.argv[5].split(",")
+    # argv is always string
+    es_batch_sizes = [int(size_str) for size_str in es_batch_sizes]
 
-    for file_path in sys.argv[5:]:
+    for file_path in sys.argv[6:]:
         if os.path.isfile(file_path):
             if os.path.splitext(file_path) != ".json":
                 logging.info("File '{}' needs preprocessing before being able to ingest in ES".format(file_path))
@@ -120,7 +149,15 @@ if __name__ == '__main__':
                 ingest_path = file_path
 
             logging.info("Ingesting file '{}' into ES".format(ingest_path))
-            es_ingest_file(ingest_path, es_host, es_index_name)
+
+            for es_batch_size in es_batch_sizes:
+                import time
+                start_time = time.time()
+                logging.info("Start ingest: {}".format(es_batch_size))
+                es_ingest_file(ingest_path, es_host, es_index_name, es_batch_size)
+                duration = time.time() - start_time
+                logging.info("End ingest: {} - took {}s".format(es_batch_size, duration))
+            
             logging.info("Succesfully ingested file: {}".format(ingest_path))
         else:
             logging.error("'{}' is not a file. Skipping".format(file_path))
