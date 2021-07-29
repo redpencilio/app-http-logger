@@ -60,14 +60,17 @@ Put the encrypted logs files in `./data/encrypted/http`
 
 Execute the following mu-script to import the encrypted logs files with the correct recipient (key id) for the GPG key:
 ``` sh
-mu script visualize-scripts http $RECIPIENT
+RECIPIENT=kerstman@example.com
+BATCH_SIZE=1000
+mu script visualize-scripts http $RECIPIENT $BATCH_SIZE
 ```
 
 Put the compressed stats files in `./data/compressed/stats`
 
 Execute the following mu-script to import the stats files:
 ``` sh
-mu script visualize-scripts stats
+BATCH_SIZE=1000
+mu script visualize-scripts stats $BATCH_SIZE
 ```
 
 Logs will be visible in Kibana at `http://localhost:5601`. Add the index patterns `http-log*` and `stats*` and click on 'discover'.
