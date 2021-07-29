@@ -52,15 +52,36 @@ def decrypt_file(source_path, destination_folder, gpg_instance, passphrase):
                 raise Exception("GPG Decryption failed: {}".format(decryption_status.status))
     return output_path
 
-def es_ingest_file(file_path, es_host, es_index_name):
+def es_ingest_file(file_path, es_host, es_index_name, batch_size):
     with open(file_path, "rt") as file:
         # Streaming multiple GB's to the ES "/_bulk" endpoint in a single request causes memory issues in ES
         # Making one request per log-line on the other hand seems slow.
-        for line in file:
-            es_command = es_command_template.substitute(index_name=es_index_name, payload=line).encode('utf-8')
+        file_itor = batch(file, batch_size)
+
+        for lines in file_itor:
+            lines_str = "".join(lines)
+
+            es_command = es_command_template.substitute(index_name=es_index_name, payload=lines_str).encode('utf-8')
             headers = { 'content-type' : 'application/json' }
             response = requests.post("{}/_bulk".format(es_host), data=es_command, headers=headers)
             response.raise_for_status()
+
+def batch(itor, batch_size):
+    while True:
+        i = 0
+        batches = []
+
+        try: 
+            while (i < batch_size):
+                it = next(itor)
+                batches.append(it)
+                i = i + 1
+            yield batches
+        except StopIteration as err:
+            # last batch
+            if i > 0:
+                yield batches
+            break
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-bulk.html#docs-bulk-api-desc
 es_command_template = Template("""
