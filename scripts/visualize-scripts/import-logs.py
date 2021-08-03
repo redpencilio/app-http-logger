@@ -18,31 +18,23 @@ def strip_newlines(file):
 
 def batch_iterator(itor, batch_size):
     line_index = 0
+    i_end = batch_size - 1
     while True:
         batches = []
-        i = 0
-        is_last = False
-
-        # get list of batch items
-        while i < batch_size:
-            try:
+        i = -1
+        try:
+            while i < i_end:
                 it = next(itor)
-            except StopIteration:
-                is_last = True
-                break
-
-            batches.append(it)
-            i = i + 1
-
-        # create batch result
-        result = (batches, (line_index, line_index + i))
-
-        is_present = i > 0
-        if not is_last or is_present:
-            yield result
-
-        if is_last:
+                batches.append(it)
+                # increment after next: keep track of i when iterator has advanced
+                i = i + 1
+        except StopIteration:
             return
+        finally:
+            is_present = i >= 0
+            if is_present:
+                # create batch result
+                yield (batches, (line_index, line_index + i))
 
         line_index = line_index + batch_size
 
@@ -100,25 +92,25 @@ def es_ingest_file(file_path, es_host, es_index_name, batch_size):
         # Making one request per log-line on the other hand seems slow.
         file_itor = batch_iterator(file, batch_size)
 
-        
         for (lines, indices) in file_itor:
             es_bulk_command = generate_bulk_index_command(es_index_name, lines)
             headers = { 'content-type' : 'application/json' }
             response = requests.post("{}/_bulk".format(es_host), data=es_bulk_command, headers=headers)
 
             if response.status_code == 429: # Too Many Requests
-                logging.error("Probably batch size too large", file_path, indices)
+                logging.error("Response status: 429 - Too Many Requests. Try to lower the batch size or increase Java's available memory.", file_path, indices)
             
             response.raise_for_status()
 
 def generate_bulk_index_command(es_index_name, lines):
-    command_builder = []
+    commands = []
     for line_str in lines:
         # line_str includes new line characters, like elastic search expects
         command = es_command_template.substitute(index_name=es_index_name, payload=line_str)
-        command_builder.append(command)
-    
-    return "".join(command_builder).encode('utf-8')
+        commands.append(command)
+
+    commands_str = "".join(commands).encode('utf-8')
+    return commands_str
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-bulk.html#docs-bulk-api-desc
 es_command_template = Template("""
@@ -136,9 +128,11 @@ if __name__ == '__main__':
     gpg_passphrase = sys.argv[2]
     es_host = sys.argv[3]
     es_index_name = sys.argv[4]
-    es_batch_sizes = sys.argv[5].split(",")
-    # argv is always string
-    es_batch_sizes = [int(size_str) for size_str in es_batch_sizes]
+    try:
+        es_batch_size = int(sys.argv[5])
+    except:
+        logging.error("Required argument BATCH_SIZE not provided.")
+        sys.exit(1)
 
     for file_path in sys.argv[6:]:
         if os.path.isfile(file_path):
@@ -150,14 +144,13 @@ if __name__ == '__main__':
 
             logging.info("Ingesting file '{}' into ES".format(ingest_path))
 
-            for es_batch_size in es_batch_sizes:
-                import time
-                start_time = time.time()
-                logging.info("Start ingest: {}".format(es_batch_size))
-                es_ingest_file(ingest_path, es_host, es_index_name, es_batch_size)
-                duration = time.time() - start_time
-                logging.info("End ingest: {} - took {}s".format(es_batch_size, duration))
-            
+            import time
+            logging.info("Start ingestion: size {}".format(es_batch_size))
+            start_time = time.time()
+            es_ingest_file(ingest_path, es_host, es_index_name, es_batch_size)
+            duration = time.time() - start_time
+            logging.info("End ingestion  : time {}s".format(duration))
+
             logging.info("Succesfully ingested file: {}".format(ingest_path))
         else:
             logging.error("'{}' is not a file. Skipping".format(file_path))
