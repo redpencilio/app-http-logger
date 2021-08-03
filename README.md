@@ -60,7 +60,7 @@ Put the encrypted logs files in `./data/encrypted/http`
 
 Execute the following mu-script to import the encrypted logs files with the correct recipient (key id) for the GPG key:
 ``` sh
-RECIPIENT=kerstman@example.com
+RECIPIENT=johnny.bravo@example.com
 BATCH_SIZE=1000
 mu script visualize-scripts http $RECIPIENT $BATCH_SIZE
 ```
@@ -150,4 +150,3 @@ Kibana determines which fields are available in an index when it first creates t
 * [mu-authorization](https://github.com/mu-semtech/delta-notifier): abstraction layer for the database, create delta's from database state changes.
 
 * [delta-notifier](https://github.com/mu-semtech/delta-notifier): notify network capture service of changes in docker state.
- 
