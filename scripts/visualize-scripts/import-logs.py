@@ -33,8 +33,8 @@ def batch_iterator(itor, batch_size):
         finally:
             is_present = i >= 0
             if is_present:
-                # create batch result
-                yield (batches, (line_index, line_index + i))
+                result = (batches, (line_index, line_index + i))
+                yield result
 
         line_index = line_index + batch_size
 
@@ -98,7 +98,7 @@ def es_ingest_file(file_path, es_host, es_index_name, batch_size):
             response = requests.post("{}/_bulk".format(es_host), data=es_bulk_command, headers=headers)
 
             if response.status_code == 429: # Too Many Requests
-                logging.error("Response status: 429 - Too Many Requests. Try to lower the batch size or increase Java's available memory.", file_path, indices)
+                logging.error("Response status: 429 - Too Many Requests. Try to lower the batch size or increase Java's available memory.")
             
             response.raise_for_status()
 
