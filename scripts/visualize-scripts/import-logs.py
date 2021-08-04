@@ -8,13 +8,14 @@ from string import Template
 import requests
 import gnupg
 
+# when decrypting, ensure GPG_HOME_FOLDER exists
 GPG_HOME_FOLDER = "/root/.gnupg"
 UNENCRYPTED_LOGS_FOLDER = "/project/data/logs/http"
 
 def strip_newlines(file):
     return list(line.rstrip('\n') for line in file)
 
-def preprocess_file(file_path, destination_folder, gpg_instance, passphrase):
+def preprocess_file(file_path, destination_folder, passphrase):
     """ Yields file-like objects containing JSON.
         Since this functions also takes archive files, one filename can potentially yield multiple file-like objects
     """
@@ -22,7 +23,7 @@ def preprocess_file(file_path, destination_folder, gpg_instance, passphrase):
     if filename.endswith(".json.tar.gz"): # Untar and then read the output
         return extract_file(file_path, destination_folder)
     elif filename.endswith(".json.gpg"): # Decrypt and then read the output
-        return decrypt_file(file_path, destination_folder, gpg_instance, passphrase)
+        return decrypt_file(file_path, destination_folder, passphrase)
     else:
         raise Exception("Unknown file type for file {}".format(filename))
 
@@ -38,7 +39,17 @@ def extract_file(source_path, destination_folder):
             tar.extract(extracted_filename, destination_folder)
     return dest_path
 
-def decrypt_file(source_path, destination_folder, gpg_instance, passphrase):
+gpg_instance = None
+def init_gpg():
+    logging.info("Initializing Python gpg")
+    return gnupg.GPG(gnupghome=GPG_HOME_FOLDER)
+
+def decrypt_file(source_path, destination_folder, passphrase):
+    global gpg_instance
+    
+    if gpg_instance is None:
+        gpg_instance = init_gpg()
+    
     filename = os.path.split(file_path)[1]
     unencrypted_filename = filename.replace('.json.gpg', '.json')
     output_path = os.path.join(destination_folder, unencrypted_filename)
@@ -47,7 +58,7 @@ def decrypt_file(source_path, destination_folder, gpg_instance, passphrase):
     else:
         logging.info("Starting decryption of {} ...".format(source_path))
         with open(source_path, "rb") as f:
-            decryption_status = gpg_instance.decrypt_file(f, passphrase=passphrase, always_trust=True, output=output_path)
+            decryption_status = gpg_instance.decrypt_file(f, passphrase=passphrase, always_trust=True, output=output_path) # debug with `extra_args=["-v"]`
             if not decryption_status.ok:
                 raise Exception("GPG Decryption failed: {}".format(decryption_status.status))
     return output_path
@@ -68,10 +79,6 @@ es_command_template = Template("""
 $payload
 """)
 
-def init_gpg():
-    logging.info("Initializing Python gpg")
-    return gnupg.GPG(gnupghome=GPG_HOME_FOLDER)
-
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
     # Args validation
@@ -82,13 +89,12 @@ if __name__ == '__main__':
     gpg_passphrase = sys.argv[2]
     es_host = sys.argv[3]
     es_index_name = sys.argv[4]
-    gpg_instance = init_gpg()
 
     for file_path in sys.argv[5:]:
         if os.path.isfile(file_path):
             if os.path.splitext(file_path) != ".json":
                 logging.info("File '{}' needs preprocessing before being able to ingest in ES".format(file_path))
-                ingest_path = preprocess_file(file_path, UNENCRYPTED_LOGS_FOLDER, gpg_instance, gpg_passphrase)
+                ingest_path = preprocess_file(file_path, UNENCRYPTED_LOGS_FOLDER, gpg_passphrase)
             else:
                 ingest_path = file_path
 
