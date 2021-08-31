@@ -7,6 +7,7 @@ import tarfile
 from string import Template
 import requests
 import gnupg
+import more_itertools
 
 # when decrypting, ensure GPG_HOME_FOLDER exists
 GPG_HOME_FOLDER = "/root/.gnupg"
@@ -15,28 +16,6 @@ UNENCRYPTED_LOGS_FOLDER = "/project/data/logs/http"
 # utils
 def strip_newlines(file):
     return list(line.rstrip('\n') for line in file)
-
-def batch_iterator(itor, batch_size):
-    line_index = 0
-    i_end = batch_size - 1
-    while True:
-        batches = []
-        i = -1
-        try:
-            while i < i_end:
-                it = next(itor)
-                batches.append(it)
-                # increment after next: keep track of i when iterator has advanced
-                i = i + 1
-        except StopIteration:
-            return
-        finally:
-            is_present = i >= 0
-            if is_present:
-                result = (batches, (line_index, line_index + i))
-                yield result
-
-        line_index = line_index + batch_size
 
 def preprocess_file(file_path, destination_folder, passphrase):
     """ Yields file-like objects containing JSON.
@@ -90,9 +69,9 @@ def es_ingest_file(file_path, es_host, es_index_name, batch_size):
     with open(file_path, "rt") as file:
         # Streaming multiple GB's to the ES "/_bulk" endpoint in a single request causes memory issues in ES
         # Making one request per log-line on the other hand seems slow.
-        file_itor = batch_iterator(file, batch_size)
+        file_itor = more_itertools.ichunked(file, batch_size)
 
-        for (lines, indices) in file_itor:
+        for lines in file_itor:
             es_bulk_command = generate_bulk_index_command(es_index_name, lines)
             headers = { 'content-type' : 'application/json' }
             response = requests.post("{}/_bulk".format(es_host), data=es_bulk_command, headers=headers)
