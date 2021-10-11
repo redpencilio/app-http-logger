@@ -7,11 +7,13 @@ import tarfile
 from string import Template
 import requests
 import gnupg
+import more_itertools
 
 # when decrypting, ensure GPG_HOME_FOLDER exists
 GPG_HOME_FOLDER = "/root/.gnupg"
 UNENCRYPTED_LOGS_FOLDER = "/project/data/logs/http"
 
+# utils
 def strip_newlines(file):
     return list(line.rstrip('\n') for line in file)
 
@@ -63,15 +65,31 @@ def decrypt_file(source_path, destination_folder, passphrase):
                 raise Exception("GPG Decryption failed: {}".format(decryption_status.status))
     return output_path
 
-def es_ingest_file(file_path, es_host, es_index_name):
+def es_ingest_file(file_path, es_host, es_index_name, batch_size):
     with open(file_path, "rt") as file:
         # Streaming multiple GB's to the ES "/_bulk" endpoint in a single request causes memory issues in ES
         # Making one request per log-line on the other hand seems slow.
-        for line in file:
-            es_command = es_command_template.substitute(index_name=es_index_name, payload=line).encode('utf-8')
+        file_itor = more_itertools.ichunked(file, batch_size)
+
+        for lines in file_itor:
+            es_bulk_command = generate_bulk_index_command(es_index_name, lines)
             headers = { 'content-type' : 'application/json' }
-            response = requests.post("{}/_bulk".format(es_host), data=es_command, headers=headers)
+            response = requests.post("{}/_bulk".format(es_host), data=es_bulk_command, headers=headers)
+
+            if response.status_code == 429: # Too Many Requests
+                logging.error("Response status: 429 - Too Many Requests. Try to lower the batch size or increase Java's available memory.")
+            
             response.raise_for_status()
+
+def generate_bulk_index_command(es_index_name, lines):
+    commands = []
+    for line_str in lines:
+        # line_str includes new line characters, like elastic search expects
+        command = es_command_template.substitute(index_name=es_index_name, payload=line_str)
+        commands.append(command)
+
+    commands_str = "".join(commands).encode('utf-8')
+    return commands_str
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-bulk.html#docs-bulk-api-desc
 es_command_template = Template("""
@@ -82,15 +100,20 @@ $payload
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
     # Args validation
-    if len(sys.argv) < 6:
-        logging.error("Usage: ./import-logs.py RECIPIENT PASSPHRASE URL INDEX FILE...")
+    if len(sys.argv) < 7:
+        logging.error("Usage: ./import-logs.py RECIPIENT PASSPHRASE URL INDEX BATCH_SIZE FILE...")
         sys.exit(1)
     # recipient currently unused
     gpg_passphrase = sys.argv[2]
     es_host = sys.argv[3]
     es_index_name = sys.argv[4]
+    try:
+        es_batch_size = int(sys.argv[5])
+    except:
+        logging.error("Required argument BATCH_SIZE not provided.")
+        sys.exit(1)
 
-    for file_path in sys.argv[5:]:
+    for file_path in sys.argv[6:]:
         if os.path.isfile(file_path):
             if os.path.splitext(file_path) != ".json":
                 logging.info("File '{}' needs preprocessing before being able to ingest in ES".format(file_path))
@@ -99,7 +122,14 @@ if __name__ == '__main__':
                 ingest_path = file_path
 
             logging.info("Ingesting file '{}' into ES".format(ingest_path))
-            es_ingest_file(ingest_path, es_host, es_index_name)
+
+            import time
+            logging.info("Start ingestion: size {}".format(es_batch_size))
+            start_time = time.time()
+            es_ingest_file(ingest_path, es_host, es_index_name, es_batch_size)
+            duration = time.time() - start_time
+            logging.info("End ingestion  : time {}s".format(duration))
+
             logging.info("Succesfully ingested file: {}".format(ingest_path))
         else:
             logging.error("'{}' is not a file. Skipping".format(file_path))
