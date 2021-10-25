@@ -39,3 +39,9 @@ services:
     volumes:
       - ./scripts/visualize-scripts:/app/scripts/
     restart: "no"
+  logstash:
+    volumes:
+      - "./config/logstash-http/pipelines/http-visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
+  stats-logstash:
+    volumes:
+      - "./config/logstash-stats/pipelines/stats-visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro"

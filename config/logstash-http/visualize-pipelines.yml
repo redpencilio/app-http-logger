@@ -1,0 +1,2 @@
+- pipeline.id: http
+  path.config: "/config/pipelines/http-visualize-pipeline.conf:ro"
