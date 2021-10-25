@@ -51,13 +51,13 @@ services:
       - default
       - logstash-network
     volumes:
-      - "./config/logstash-http/pipelines/http-file-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
+      - "./config/logstash-http/http-file-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
     logging: *default-logging
   stats-logstash:
     image: redpencil/http-logger-logstash-service:0.1.0
     user: "root"
     volumes:
-      - "./config/logstash-stats/pipelines/stats-file-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
+      - "./config/logstash-stats/stats-file-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
     networks:
       - default
       - logstash-network

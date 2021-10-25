@@ -1,2 +1,0 @@
-- pipeline.id: stats
-  path.config: "/config/pipelines/stats-visualize-pipeline.conf:ro"
