@@ -44,11 +44,12 @@ def es_cleanup(elasticsearch_url: str, index_pattern: str, before_date: datetime
             }
         }
     }
-    # # https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
+    # https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
     response = requests.post(f"{elasticsearch_url}/{index_pattern}/_delete_by_query", headers=request_headers, json=request_body)
     response.raise_for_status()
     response_body = response.json()
     return response_body["deleted"]
+
 
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
@@ -62,4 +63,8 @@ if __name__ == '__main__':
 
     deleted_count = es_cleanup(args.elasticsearch_url, args.index_pattern, args.before_date)
 
-    logging.info(f"{deleted_count} log entries deleted.")
+    logging.info(f"I deleted {deleted_count} log entries.")
+
+    # TODO: It is probably useful to delete empty indices when using the *-visualize-pipelines.
+    # These pipelines create an index for each day.
+    # They become obsolete when the log data has been cleared for that day.
