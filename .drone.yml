@@ -6,6 +6,7 @@ steps:
   image: plugins/docker
   settings:
     repo: ${DRONE_REPO_NAMESPACE/redpencilio/redpencil}/app-http-logger-visualize-scripts
+    dockerfile: scripts/visualize-scripts/Dockerfile
     username:
       from_secret: docker_username
     password:
@@ -26,6 +27,7 @@ steps:
   settings:
     repo: ${DRONE_REPO_NAMESPACE/redpencilio/redpencil}/app-http-logger-visualize-scripts
     tags: ${DRONE_TAG##v} # strips v from the tag
+    dockerfile: scripts/visualize-scripts/Dockerfile
     username:
       from_secret: docker_username
     password:
@@ -42,6 +44,7 @@ steps:
   image: plugins/docker
   settings:
     repo: ${DRONE_REPO_NAMESPACE/redpencilio/redpencil}/app-http-logger-visualize-scripts
+    dockerfile: scripts/visualize-scripts/Dockerfile
     dry_run: true
 trigger:
   event:
