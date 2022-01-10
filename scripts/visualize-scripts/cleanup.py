@@ -6,13 +6,13 @@ import logging
 
 class Arguments:
     def parse(self):
-        parser = argparse.ArgumentParser("Logunstash")
+        parser = argparse.ArgumentParser("cleanup")
 
-        parser.add_argument('--elasticsearch-url', default="http://elasticsearch:9200")
-        parser.add_argument('--index-pattern',  default="http-log*,stats*", type=str, help="Index pattern to clear. * for wildcard. , to specify multiple patterns.")
         before_date_parser = parser.add_mutually_exclusive_group(required=True)
-        before_date_parser.add_argument('--before-date', type=self.parse_before_date, help='Log entries from before this date will be deleted.')
+        before_date_parser.add_argument('--before-date', type=self.parse_before_date, help='Log entries from before this date (YYYY-MM-DD) will be deleted.')
         before_date_parser.add_argument('--older-than-days', type=self.parse_older_than_days, dest='before_date', help='Log entries older than this number of days will be deleted.')
+        parser.add_argument('--index-pattern',  default="http-log*,stats*", type=str, help="Comma-separated list of index patterns to clear. Default: \"http-log*,stats*\". Use * for wildcard.")
+        parser.add_argument('--elasticsearch-url', default="http://elasticsearch:9200")
 
         args = parser.parse_args()
 
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     arguments = Arguments()
     args = arguments.parse()
 
-    answer = input(f'Should I delete all log entries from the indexes matching "{args.index_pattern}" dating from before {args.before_date}? [y/N]')
+    answer = input(f'All log entries from indexes matching "{args.index_pattern}" dating from before {args.before_date} will be deleted. Are you sure? [y/N]')
     if answer.lower() != "y":
         exit()
 
