@@ -1,4 +1,0 @@
-# - pipeline.id: http
-#   path.config: "/config/pipelines/http-visualize-pipeline.conf:ro"
-- pipeline.id: stats
-  path.config: "/config/pipelines/stats-visualize-pipeline.conf:ro"
