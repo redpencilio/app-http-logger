@@ -40,7 +40,7 @@
         "arguments": ["--elasticsearch-url", "--index-pattern", "--before-date", "--older-than-days"]
       },
       "environment": {
-        "image": "redpencil/app-http-logger-visualize-scripts",
+        "image": "redpencil/app-http-logger-visualize-scripts:1.0.0",
         "interactive": true,
         "join_networks": true,
         "script": "logunstash.py"
