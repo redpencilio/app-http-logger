@@ -13,6 +13,7 @@ class Arguments:
         before_date_parser.add_argument('--older-than-days', type=self.parse_older_than_days, dest='before_date', help='Log entries older than this number of days will be deleted.')
         parser.add_argument('--index-pattern',  default="http-log*,stats*", type=str, help="Comma-separated list of index patterns to clear. Default: \"http-log*,stats*\". Use * for wildcard.")
         parser.add_argument('--elasticsearch-url', default="http://elasticsearch:9200")
+        parser.add_argument('-y', action='store_true', dest='assume_yes', help="Automatic yes to prompts; assume \"yes\" as answer to all prompts and run non-interactively.")
 
         args = parser.parse_args()
 
@@ -57,13 +58,16 @@ if __name__ == '__main__':
     arguments = Arguments()
     args = arguments.parse()
 
-    answer = input(f'All log entries from indexes matching "{args.index_pattern}" dating from before {args.before_date} will be deleted. Are you sure? [y/N]')
-    if answer.lower() != "y":
+    if not args.assume_yes:
+      answer = input(f'All log entries from indexes matching "{args.index_pattern}" dating from before {args.before_date} will be deleted. Are you sure? [y/N]')
+      if answer.lower() != "y":
         exit()
+    else:
+      logging.info(f'Deleting all log entries from indexes matching "{args.index_pattern}" dating from before {args.before_date}.')
 
     deleted_count = es_cleanup(args.elasticsearch_url, args.index_pattern, args.before_date)
 
-    logging.info(f"I deleted {deleted_count} log entries.")
+    logging.info(f"Done. {deleted_count} log entries have been deleted.")
 
     # TODO: It is probably useful to delete empty indices when using the *-visualize-pipelines.
     # These pipelines create an index for each day.
