@@ -13,7 +13,12 @@ app-http-logger is structured as three docker-compose files:
 `docker-compose.encrypt.yml` and `docker-compose.live.yml` can at present not be used together, as they each create a separate Logstash pipeline that tries to listen on the same port for Packetbeat events.
 
 ### Logging traffic and directly visualizing it
-This is the default mode of this project. To start logging containers, add the `logging` label to the containers you want to monitor.
+This is the default mode of this project. Logs are collected and immediately imported in the visualization stack. To start logging containers, add the `logging` label to the containers you want to monitor.
+
+Ensure the `.env` file contains the following contents:
+```
+COMPOSE_FILE=docker-compose.yml:docker-compose.live.yml:docker-compose.visualize.yml
+```
 
 Start the app-http-logger by running:
 ``` sh
@@ -22,8 +27,10 @@ docker-compose up -d
 
 Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index patterns `http-log*` and `stats*` and click on 'discover'.
 
+_Note: the intermediate logs are not written to files. As a consequence in this setup no backups of the logs can be taken. This is probably not what you want in production._
+
 ### Logging traffic to (encrypted) files
-In this mode, data is captured and written to files. HTTP logs get encrypted, stats remain unencrypted. Visualization is not running live on the data.
+In this mode, data is captured and written to files. This is probably your prefered mode on production machines. HTTP logs get encrypted, stats remain unencrypted. Visualization is not running live on the data, but can be setup on any machine.
 
 Update the `.env` file to use the following docker-compose files:
 ```
@@ -42,7 +49,7 @@ docker-compose up -d
 Plain text logs will be stored in `./data/logs`. Encrypted logs will be stored in the `./data/encrypted` directory. Compressed logs will be stored in `./data/compressed`.
 
 ### Visualizing (encrypted) logs from files
-In this mode, only the services for visualization are started. Scripts are provided to import encrypted log files and compressed stats files in Elasticsearch. The stack doesn't need to run on the same server where the data is captured.
+In this mode, only the services for visualization are started. Scripts are provided to import encrypted log files and compressed stats files in Elasticsearch. The visualization stack doesn't need to run on the same server where the data is captured.
 
 Update the `.env` file to use the following docker-compose files:
 ```
@@ -61,16 +68,14 @@ Put the encrypted logs files in `./data/encrypted/http`
 Execute the following mu-script to import the encrypted logs files with the correct recipient (key id) for the GPG key:
 ``` sh
 RECIPIENT=johnny.bravo@example.com
-BATCH_SIZE=1000
-mu script visualize-scripts http $RECIPIENT $BATCH_SIZE
+mu script visualize-scripts http $RECIPIENT
 ```
 
 Put the compressed stats files in `./data/compressed/stats`
 
 Execute the following mu-script to import the stats files:
 ``` sh
-BATCH_SIZE=1000
-mu script visualize-scripts stats $BATCH_SIZE
+mu script visualize-scripts stats
 ```
 
 Logs will be visible in Kibana at `http://localhost:5601`. Add the index patterns `http-log*` and `stats*` and click on 'discover'.

@@ -15,7 +15,7 @@ services:
       - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     environment:
       http.max_content_length: 200MB
-      ES_JAVA_OPTS: "-Xms256m -Xmx256m"
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
     logging: *default-logging
   kibana:
     image: docker.elastic.co/kibana/kibana-oss:7.6.2

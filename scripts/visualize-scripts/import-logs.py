@@ -48,10 +48,10 @@ def init_gpg():
 
 def decrypt_file(source_path, destination_folder, passphrase):
     global gpg_instance
-    
+
     if gpg_instance is None:
         gpg_instance = init_gpg()
-    
+
     filename = os.path.split(file_path)[1]
     unencrypted_filename = filename.replace('.json.gpg', '.json')
     output_path = os.path.join(destination_folder, unencrypted_filename)
@@ -78,7 +78,7 @@ def es_ingest_file(file_path, es_host, es_index_name, batch_size):
 
             if response.status_code == 429: # Too Many Requests
                 logging.error("Response status: 429 - Too Many Requests. Try to lower the batch size or increase Java's available memory.")
-            
+
             response.raise_for_status()
 
 def generate_bulk_index_command(es_index_name, lines):
