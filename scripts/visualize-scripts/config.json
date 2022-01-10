@@ -8,7 +8,7 @@
         "arguments": ["recipient", "batch-size:1000"]
       },
       "environment": {
-        "image": "redpencil/app-http-logger-visualize-scripts",
+        "image": "redpencil/app-http-logger-visualize-scripts:1.0.0",
         "interactive": true,
         "join_networks": true,
         "script": "http.sh"
@@ -24,7 +24,7 @@
         "arguments": ["batch-size:1000"]
       },
       "environment": {
-        "image": "redpencil/app-http-logger-visualize-scripts",
+        "image": "redpencil/app-http-logger-visualize-scripts:1.0.0",
         "interactive": true,
         "join_networks": true,
         "script": "stats.sh"
