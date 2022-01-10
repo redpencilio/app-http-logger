@@ -32,6 +32,19 @@
       "mounts": {
         "app": "/project/"
       }
+    },
+    {
+      "documentation": {
+        "command": "cleanup",
+        "description": "Cleanup old log entries from Elasticsearch. Run 'cleanup -h' to get a full list of options.",
+        "arguments": ["--before-date|--older-than-days"]
+      },
+      "environment": {
+        "image": "redpencil/app-http-logger-visualize-scripts:1.0.0",
+        "interactive": true,
+        "join_networks": true,
+        "script": "cleanup.py"
+      }
     }
   ]
 }
