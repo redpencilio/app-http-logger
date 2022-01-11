@@ -10,9 +10,11 @@ app-http-logger is structured as three docker-compose files:
 
 **Only containers with a label called `logging` (with any value) will be monitored**. Do not forget to set this label.
 
-`docker-compose.encrypt.yml` and `docker-compose.live.yml` can at present not be used together, as they each create a separate Logstash pipeline that tries to listen on the same port for Packetbeat events.
+The stack can be started in different modes depending on the `docker-compose.*.yml` files that are taken into account. The different options are described below.
 
-### Logging traffic and directly visualizing it
+It's important to note that `docker-compose.encrypt.yml` and `docker-compose.live.yml` can at present not be used together, as they each create a separate Logstash pipeline that tries to listen on the same port for Packetbeat events.
+
+### Option 1: Logging traffic and directly visualizing it
 This is the default mode of this project. Logs are collected and immediately imported in the visualization stack. To start logging containers, add the `logging` label to the containers you want to monitor.
 
 Ensure the `.env` file contains the following contents:
@@ -29,8 +31,8 @@ Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, ad
 
 _Note: the intermediate logs are not written to files. As a consequence in this setup no backups of the logs can be taken. This is probably not what you want in production._
 
-### Logging traffic to (encrypted) files
-In this mode, data is captured and written to files. This is probably your prefered mode on production machines. HTTP logs get encrypted, stats remain unencrypted. Visualization is not running live on the data, but can be setup on any machine.
+### Option 2: Logging traffic to (encrypted) files
+In this mode, data is captured and written to files. This is probably your prefered mode on production machines. HTTP logs get encrypted, stats remain unencrypted. Visualization is not running live on the data, but can be setup on any machine (see option 3).
 
 Update the `.env` file to use the following docker-compose files:
 ```
@@ -48,7 +50,7 @@ docker-compose up -d
 
 Plain text logs will be stored in `./data/logs`. Encrypted logs will be stored in the `./data/encrypted` directory. Compressed logs will be stored in `./data/compressed`.
 
-### Visualizing (encrypted) logs from files
+### Option 3: Visualizing (encrypted) logs from files
 In this mode, only the services for visualization are started. Scripts are provided to import encrypted log files and compressed stats files in Elasticsearch. The visualization stack doesn't need to run on the same server where the data is captured.
 
 Update the `.env` file to use the following docker-compose files:
