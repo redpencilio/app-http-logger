@@ -80,6 +80,8 @@ mu script visualize-scripts stats
 
 Logs will be visible in Kibana at `http://localhost:5601`. Add the index patterns `http-log*` and `stats*` and click on 'discover'.
 
+_Note: the visualization scripts don't keep track which files have already been imported. Hence, running the script twice on the same set of files will result in duplicate entries._
+
 ### Importing and exporting dashboards
 
 If you create dashboards to visualize logs, you can export these to JSON files and load them again later. The Kibana service must be started and ready to use these scripts.
