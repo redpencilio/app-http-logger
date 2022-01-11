@@ -19,5 +19,5 @@ r = requests.get("http://{0:s}/api/saved_objects/_find?type=dashboard&per_page=2
 for item in r.json()['saved_objects']:
     dashboardResp = requests.get("http://{0:s}/api/kibana/dashboards/export?dashboard={1:s}".format(sys.argv[1], item['id']))
     with open("{0:s}/{1:s}.json".format(sys.argv[2], item['id']), "w") as f: # Open file in "w" = truncate and write mode
-        print("Writing dashboard {0:s} to {1:s}.json".format(item['attributes']['title'], item['id']))
+        print("Writing dashboard '{0:s}' to {1:s}.json".format(item['attributes']['title'], item['id']))
         f.write(dashboardResp.text)
