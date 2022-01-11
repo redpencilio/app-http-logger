@@ -8,7 +8,7 @@
         "arguments": ["recipient", "batch-size:1000"]
       },
       "environment": {
-        "image": "redpencil/app-http-logger-visualize-scripts:1.0.0",
+        "image": "redpencil/app-http-logger-visualize-scripts:1.0.1",
         "interactive": true,
         "join_networks": true,
         "script": "http.sh"
@@ -24,8 +24,8 @@
         "arguments": ["batch-size:1000"]
       },
       "environment": {
-        "image": "redpencil/app-http-logger-visualize-scripts:1.0.0",
-        "interactive": true,
+        "image": "redpencil/app-http-logger-visualize-scripts:1.0.1",
+        "interactive": false,
         "join_networks": true,
         "script": "stats.sh"
       },
@@ -37,10 +37,10 @@
       "documentation": {
         "command": "cleanup",
         "description": "Cleanup old log entries from Elasticsearch. Run 'cleanup -h' to get a full list of options.",
-        "arguments": ["--before-date|--older-than-days"]
+        "arguments": ["--before-date|--older-than-days", "-y"]
       },
       "environment": {
-        "image": "redpencil/app-http-logger-visualize-scripts:1.0.0",
+        "image": "redpencil/app-http-logger-visualize-scripts:1.0.1",
         "interactive": true,
         "join_networks": true,
         "script": "cleanup.py"

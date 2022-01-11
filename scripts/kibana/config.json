@@ -8,7 +8,7 @@
         "arguments": []
       },
       "environment": {
-        "image": "python:3.8-slim-buster",
+        "image": "redpencil/app-http-logger-visualize-scripts:1.0.1",
         "interactive": false,
         "join_networks": true,
         "script": "dashboard-import.sh"
@@ -24,7 +24,7 @@
         "arguments": []
       },
       "environment": {
-        "image": "python:3.8-slim-buster",
+        "image": "redpencil/app-http-logger-visualize-scripts:1.0.1",
         "interactive": false,
         "join_networks": true,
         "script": "dashboard-export.sh"
