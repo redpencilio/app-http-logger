@@ -127,12 +127,16 @@ def ingest_path(gpg_passphrase, es_host, es_index_name, es_batch_size):
             if os.path.splitext(file_path) != ".json":
                 print("{}: Extracting and ingesting '{}'".format(idx, file_path))
                 ingest_path = preprocess_file(file_path, UNENCRYPTED_LOGS_FOLDER, gpg_passphrase)
+                should_remove_ingested_file = True
             else:
                 print("{}: Ingesting '{}'".format(idx, file_path))
                 ingest_path = file_path
+                should_remove_ingested_file = False
 
             start_time = time.time()
             es_ingest_file(ingest_path, es_host, es_index_name, es_batch_size)
+            if should_remove_ingested_file:
+                os.remove(ingest_path)
             duration = time.time() - start_time
 
             print("{}: Succesfully ingested file {} in {:.2f}s".format(idx, ingest_path, duration))
