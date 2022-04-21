@@ -88,7 +88,7 @@ def do_decrypt_file(source_path, passphrase, output_path, retries):
             if retries > 1:
                 print("Failed to decrypt '{}' retrying {} more times".format(source_path, retries))
                 time.sleep(1 + random())
-                do_decrypt_file(source_path, passphrase, output_path, retries - 1)
+                return do_decrypt_file(source_path, passphrase, output_path, retries - 1)
             else:
                 print("Exhausted retries to decrypt '{}'".format(source_path))
                 return False
