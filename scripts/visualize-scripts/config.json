@@ -4,11 +4,11 @@
     {
       "documentation": {
         "command": "http",
-        "description": "Decrypt and import HTTP logs into Elasticsearch. Expects a private key in a file in the './keys' folder named 'gpg.key', and encrypted files in the './data/encrypted/http' directory.",
-        "arguments": ["recipient", "batch-size:1000"]
+        "description": "Decrypt and import HTTP logs into Elasticsearch. Expects a private key in a file in the './keys' folder named 'gpg.key', and encrypted files in the './data/encrypted/http' directory.  If password is empty, it will be requested on the terminal.",
+        "arguments": ["recipient", "password", "threads:1", "batch-size:1000"]
       },
       "environment": {
-        "image": "redpencil/app-http-logger-visualize-scripts:1.0.1",
+        "image": "redpencil/app-http-logger-visualize-scripts:feature-threads",
         "interactive": true,
         "join_networks": true,
         "script": "http.sh"
@@ -21,10 +21,10 @@
       "documentation": {
         "command": "stats",
         "description": "Import unencrypted stats into Elasticsearch. Expect stats files in the './data/logs/stats' directory.",
-        "arguments": ["batch-size:1000"]
+        "arguments": ["threads:1","batch-size:1000"]
       },
       "environment": {
-        "image": "redpencil/app-http-logger-visualize-scripts:1.0.1",
+        "image": "redpencil/app-http-logger-visualize-scripts:feature-threads",
         "interactive": false,
         "join_networks": true,
         "script": "stats.sh"
@@ -40,7 +40,7 @@
         "arguments": ["--before-date|--older-than-days", "-y"]
       },
       "environment": {
-        "image": "redpencil/app-http-logger-visualize-scripts:1.0.1",
+        "image": "redpencil/app-http-logger-visualize-scripts:feature-threads",
         "interactive": true,
         "join_networks": true,
         "script": "cleanup.py"

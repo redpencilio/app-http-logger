@@ -1,14 +1,27 @@
 #!/bin/sh
-echo
-echo -n "Enter key passphrase: "
-read -r -s passphrase
-echo
 
-echo "$passphrase" | gpg --batch --import --pinentry-mode loopback /project/keys/gpg.key
+export GNUPGHOME="/root/.gnupg/"
+mkdir -p /root/.gnupg/
+chmod go-rwx /root/.gnupg/
+echo "auto-expand-secmem 0x30000" > /root/.gnupg/gpg-agent.conf
 
-recipient=$1
-es_index="http-log"
-batch_size=${2:-1000} # fallback to default: 1000
-echo "Going to import HTTP logs in Elasticsearch index $es_index (batch size $batch_size)"
+RECIPIENT=$1
+PASSPHRASE=$2
 
-python3 ./import-logs.py "$recipient" "$passphrase" 'http://elasticsearch:9200' "$es_index" $batch_size /project/data/encrypted/http/*
+if ["$PASSPHRASE" -eq ""]
+then
+   echo ""
+   echo -n "Enter key passphrase: "
+   read -r -s PASSPHRASE
+   echo ""
+fi
+
+# Add the key and unlock it
+echo "$PASSPHRASE" | gpg --batch --import --pinentry-mode loopback /project/keys/gpg.key
+
+ES_INDEX="http-log"
+BATCH_SIZE=${4:-1000} # fallback to default: 1000
+THREADS=${3:-1}
+echo "Going to import HTTP logs in Elasticsearch index $ES_INDEX (batch size $BATCH_SIZE) (parallel $THREADS)"
+
+python3 ./import-logs.py "$RECIPIENT" "$PASSPHRASE" 'http://elasticsearch:9200' "$ES_INDEX" $BATCH_SIZE $THREADS /project/data/encrypted/http/*
