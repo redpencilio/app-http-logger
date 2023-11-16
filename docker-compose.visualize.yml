@@ -41,15 +41,12 @@ services:
       - ./scripts/visualize-scripts:/app/scripts/
     restart: "no"
   log-alert:
-    image: log-alert-service-dev
+    image: rahien/log-alert-service
     logging: *default-logging
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     volumes:
       - ./config/log-alert/config.json:/config/config.json:ro
     environment:
       CHAT_ACCESS_TOKEN: "yoursecretaccesstoken"
       CHAT_USER_ID: "yoursecretchatuserid"
     ports:
-      - 8881:80
       - 8514:514/udp
