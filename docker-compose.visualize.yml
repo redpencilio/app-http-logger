@@ -1,7 +1,6 @@
-version: '3.6'
+version: "3.6"
 
-x-logging:
-  &default-logging
+x-logging: &default-logging
   driver: "json-file"
   options:
     max-size: "10m"
@@ -9,7 +8,7 @@ x-logging:
 
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.0
+    image: elasticsearch:8.11.0
     volumes:
       - ./data/esdata:/usr/share/elasticsearch/data
       - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
@@ -18,7 +17,7 @@ services:
       ES_JAVA_OPTS: "-Xms1g -Xmx1g"
     logging: *default-logging
   kibana:
-    image: docker.elastic.co/kibana/kibana-oss:7.6.2
+    image: kibana:8.11.0
     depends_on:
       - elasticsearch
     ports:
@@ -32,10 +31,25 @@ services:
     command: |
       sh -c "/bin/tar -xf /kbn_network.tar.gz -C /usr/share/kibana/plugins;
              /usr/local/bin/kibana-docker --allow-root;"
-
-    logging: *default-logging
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://localhost:8514"
   visualize-scripts:
     image: semtech/mu-scripts:1.0.0
     volumes:
       - ./scripts/visualize-scripts:/app/scripts/
     restart: "no"
+  log-alert:
+    image: log-alert-service-dev
+    logging: *default-logging
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./config/log-alert/config.json:/config/config.json:ro
+    environment:
+      CHAT_ACCESS_TOKEN: "yoursecretaccesstoken"
+      CHAT_USER_ID: "yoursecretchatuserid"
+    ports:
+      - 8881:80
+      - 8514:514/udp
