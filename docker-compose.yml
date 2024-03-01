@@ -80,7 +80,7 @@ services:
       DATABASE_COMPATIBILITY: "Virtuoso"
     logging: *default-logging
   delta:
-    image: semtech/mu-delta-notifier:0.1.0
+    image: semtech/mu-delta-notifier:0.2.0
     volumes:
       - ./config/delta:/config:ro
 networks:
