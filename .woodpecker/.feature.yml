@@ -1,0 +1,14 @@
+steps:
+  push-feature-build:
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      repo: ${CI_REPO_OWNER/redpencilio/redpencil}/app-http-logger-visualize-scripts
+      tags: ${CI_COMMIT_BRANCH/\//-}
+      platforms: linux/amd64
+      dockerfile: scripts/visualize-scripts/Dockerfile
+      purge: true
+    secrets: [ docker_username, docker_password ]
+when:
+  # all events except pull_request
+  - event: [push, pull_request_closed, tag, release, deployment, cron, manual]
+    branch: feature/*
