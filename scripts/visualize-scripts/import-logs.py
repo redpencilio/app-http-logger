@@ -29,6 +29,8 @@ def preprocess_file(file_path, destination_folder, passphrase):
         return extract_file(file_path, destination_folder)
     elif filename.endswith(".json.gpg"): # Decrypt and then read the output
         return decrypt_file(file_path, destination_folder, passphrase)
+    elif filename.endswith(".json"): # Import the file directly
+        return file_path
     else:
         raise Exception("Unknown file type for file {}".format(filename))
 

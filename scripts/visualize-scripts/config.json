@@ -19,6 +19,22 @@
     },
     {
       "documentation": {
+        "command": "http-decrypted",
+        "description": "Import already decrypted HTTP logs into Elasticsearch. Expects decrypted files in the './data/decrypted/http' directory.",
+        "arguments": ["recipient", "password", "threads:1", "batch-size:1000"]
+      },
+      "environment": {
+        "image": "redpencil/app-http-logger-visualize-scripts:1.1.0",
+        "interactive": true,
+        "join_networks": true,
+        "script": "decrypted-http.sh"
+      },
+      "mounts": {
+        "app": "/project/"
+      }
+    },
+    {
+      "documentation": {
         "command": "stats",
         "description": "Import unencrypted stats into Elasticsearch. Expect stats files in the './data/logs/stats' directory.",
         "arguments": ["threads:1","batch-size:1000"]
