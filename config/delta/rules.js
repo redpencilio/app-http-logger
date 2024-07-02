@@ -7,8 +7,9 @@ export default [
             url: "http://capture/.mu/delta", method: "POST"
         },
         options: {
+            foldEffectiveChanges: true,
             resourceFormat: "v0.0.1",
-            gracePeriod: 0,
+            gracePeriod: 1000,
             ignoreFromSelf: false
         }
     },
@@ -20,8 +21,9 @@ export default [
             url: "http://stats/.mu/delta", method: "POST"
         },
         options: {
+            foldEffectiveChanges: true,
             resourceFormat: "v0.0.1",
-            gracePeriod: 0,
+            gracePeriod: 1000,
             ignoreFromSelf: false
         }
     }
