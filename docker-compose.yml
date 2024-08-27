@@ -24,7 +24,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      CAPTURE_CONTAINER_FILTER: '?uri docker:label/docker:key "logging".'
+      CAPTURE_CONTAINER_FILTER: '?uri docker:label/docker:key "logging" ; docker:label/docker:value "true" .'
       CAPTURE_SYNC_INTERVAL: 60000
       MONITOR_IMAGE: "redpencil/http-logger-packetbeat:1.7.0"
       LOGSTASH_NETWORK: "logstash-network"
