@@ -1,0 +1,12 @@
+steps:
+  build-and-push-tag:
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      repo: ${CI_REPO_OWNER/redpencilio/redpencil}/app-http-logger-visualize-scripts
+      tags: ${CI_COMMIT_TAG##v}
+      platforms: linux/amd64
+      purge: true
+      dockerfile: scripts/visualize-scripts/Dockerfile
+    secrets: [ docker_username, docker_password ]
+when:
+  - event: tag
