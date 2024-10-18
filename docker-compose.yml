@@ -1,7 +1,6 @@
-version: '3.6'
+version: "3.6"
 
-x-logging:
-  &default-logging
+x-logging: &default-logging
   driver: "json-file"
   options:
     max-size: "10m"
@@ -71,6 +70,9 @@ services:
       - ./config/db/virtuoso.ini:/data/virtuoso.ini:rw
       - ./data/db:/data:rw
     logging: *default-logging
+    ports:
+      - 8892:8890
+
   database:
     image: semtech/mu-authorization:0.6.0-beta.7
     volumes:

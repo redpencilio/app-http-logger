@@ -1,6 +1,7 @@
-elasticsearch:
-  hosts:  ["http://elasticsearch:9200"]
-  startupTimeout: 30000
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+#elasticsearch.username: "kibana_system"
+#elasticsearch.password: "elasticpassword"
+xpack.encryptedSavedObjects.encryptionKey: changemeishouldbeakeyofatleast32charactersbutnotthisoneitsunsafe
 
 server:
   host: 0.0.0.0
