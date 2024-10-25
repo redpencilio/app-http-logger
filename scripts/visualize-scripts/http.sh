@@ -6,11 +6,15 @@ chmod go-rwx /root/.gnupg/
 echo "auto-expand-secmem 0x30000" > /root/.gnupg/gpg-agent.conf
 
 RECIPIENT=$1
+PASSPHRASE=$4
 
-echo ""
-echo -n "Enter key passphrase: "
-read -r -s PASSPHRASE
-echo ""
+if ["$PASSPHRASE" -eq ""]
+then
+   echo ""
+   echo -n "Enter key passphrase: "
+   read -r -s PASSPHRASE
+   echo ""
+fi
 
 # Add the key and unlock it
 echo "$PASSPHRASE" | gpg --batch --import --pinentry-mode loopback /project/keys/gpg.key

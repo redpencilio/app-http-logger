@@ -5,7 +5,7 @@
       "documentation": {
         "command": "http",
         "description": "Decrypt and import HTTP logs into Elasticsearch. Expects a private key in a file in the './keys' folder named 'gpg.key', and encrypted files in the './data/encrypted/http' directory.  If password is empty, it will be requested on the terminal.",
-        "arguments": ["recipient", "threads:1", "batch-size:1000"]
+        "arguments": ["recipient", "threads:1", "batch-size:1000", "password"]
       },
       "environment": {
         "image": "redpencil/app-http-logger-visualize-scripts:1.1.0",
@@ -21,7 +21,7 @@
       "documentation": {
         "command": "http-decrypted",
         "description": "Import already decrypted HTTP logs into Elasticsearch. Expects decrypted files in the './data/decrypted/http' directory.",
-        "arguments": ["recipient", "password", "threads:1", "batch-size:1000"]
+        "arguments": ["recipient", "threads:1", "batch-size:1000"]
       },
       "environment": {
         "image": "redpencil/app-http-logger-visualize-scripts:1.1.0",
