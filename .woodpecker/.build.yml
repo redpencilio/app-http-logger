@@ -1,0 +1,11 @@
+steps:
+  dry-run:
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      repo: ${CI_REPO_OWNER/redpencilio/redpencil}/app-http-logger-visualize-scripts
+      platforms: linux/amd64
+      dockerfile: scripts/visualize-scripts/Dockerfile
+      dry-run: true
+      purge: true
+when:
+  - event: pull_request
