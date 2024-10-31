@@ -76,7 +76,7 @@ services:
       - ./data/db:/data:rw
     logging: *default-logging
   database:
-    image: semtech/sparql-parser:0.0.6
+    image: semtech/sparql-parser:0.0.10
     volumes:
       - ./config/cl-authorization:/config
       - ./data/cl-authorization:/data
