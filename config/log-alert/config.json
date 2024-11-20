@@ -1,0 +1,34 @@
+{
+  "rules": [
+    {
+      "name": "alerts to rocket-chat",
+      "match": {
+        "contains": "[plugins.actions.server-log]"
+      },
+      "endpoint": "https://your.rocket.chat/api/v1/chat.postMessage",
+      "fetchOptions": {
+        "method": "POST",
+        "body": {
+          "channel": "#test-kibana-alerts",
+          "text": "$date: $message",
+          "emoji": ":warning:",
+          "alias": "Kibana Alerts"
+        },
+        "headers": {
+          "X-Auth-Token": "$SECRET_CHAT_ACCESS_TOKEN",
+          "X-User-Id": "$SECRET_CHAT_USER_ID",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "alerts to db",
+      "match": {
+        "contains": "[plugins.actions.server-log]"
+      },
+      "graph": "http://mu.semte.ch/monitoring/alerts",
+      "rdfType": "http://semanticweb.cs.vu.nl/2009/11/sem/Event",
+      "prefix": "http://mu.semte.ch/vocabularies/ext/alerts/"
+    }
+  ]
+}

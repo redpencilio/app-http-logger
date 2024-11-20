@@ -1,11 +1,11 @@
 http:
-#  port: 9200
+  #  port: 9200
   pipelining:
     max_events: 100000
 
 path:
   data: /usr/share/elasticsearch/data
-
+xpack.security.enabled: false
 discovery:
   type: single-node
 
