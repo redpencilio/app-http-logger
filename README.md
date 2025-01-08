@@ -134,6 +134,16 @@ But note that this makes the data in these directories **readable to anybody wit
 ### Certain fields cannot be selected for aggregation or filtering
 Kibana determines which fields are available in an index when it first creates that index. If documents featuring new fields are added, those will not be available for aggregation or filtering. To fix this, go to Settings -> Index Patterns -> select your index -> click on the "refresh" button. This should add any new fields to the index.
 
+### Docker's rootless mode
+
+app-http-logger communicates with the host's docker daemon through the `/var/run/docker.sock` volume which is mapped to the host's `/var/run/docker.sock` file by default. However, if you use docker's [rootless mode](https://docs.docker.com/engine/security/rootless/) this file doesn't exist and it lives at [`$XDG_RUNTIME_DIR/docker.sock` by default](https://docs.docker.com/engine/security/rootless/#daemon) instead. To ensure that the communication with the docker daemon works as expected you can update the volumes in the docker-compose.yml file: 
+
+```diff
+    volumes:
+-       - /var/run/docker.sock:/var/run/docker.sock
++       - /run/user/1000/docker.sock:/var/run/docker.sock
+```
+
 ## Components
 
 * [docker-monitor-service](https://github.com/redpencilio/docker-monitor-service/): keeps track of running containers in the database.
