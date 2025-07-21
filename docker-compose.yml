@@ -47,7 +47,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     logging: *default-logging
   logstash:
-    image: redpencil/http-logger-logstash:0.2.0
+    image: redpencil/http-logger-logstash:0.3.0
     user: "root"
     networks:
       - default
