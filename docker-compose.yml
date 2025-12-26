@@ -20,12 +20,13 @@ services:
     environment:
       AUTO_DELETE_CONTAINERS: "on"
   capture:
-    image: redpencil/docker-network-capture-service:1.8.4
+    image: redpencil/docker-network-capture-service:1.9.0
     privileged: true
     userns_mode: "host"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
+      CAPTURE_DOCKER_SOCKET: "/var/run/docker.sock"
       CAPTURE_CONTAINER_FILTER: '?uri docker:label/docker:key "logging".'
       CAPTURE_SYNC_INTERVAL: 60000
       MONITOR_IMAGE: "redpencil/http-logger-packetbeat:1.8.0"
