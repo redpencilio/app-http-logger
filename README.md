@@ -24,7 +24,7 @@ COMPOSE_FILE=docker-compose.yml:docker-compose.live.yml:docker-compose.visualize
 
 Start the app-http-logger by running:
 ``` sh
-docker-compose up -d
+docker compose up -d
 ```
 
 Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index patterns `http-log*` and `stats*` and click on 'discover'.
@@ -45,7 +45,7 @@ Add the `logging` label to the containers you want to monitor.
 
 Start the app-http-logger by running:
 ``` sh
-docker-compose up -d
+docker compose up -d
 ```
 
 Plain text logs will be stored in `./data/logs`. Encrypted logs will be stored in the `./data/encrypted` directory. Compressed logs will be stored in `./data/compressed`.
@@ -60,7 +60,7 @@ COMPOSE_FILE=docker-compose.visualize.yml
 
 First, start the visualization stack:
 ``` sh
-docker-compose up -d
+docker compose up -d
 ```
 
 Put the private GPG key `gpg.key` in `./keys`. This key will be used for decryption.
