@@ -12,8 +12,6 @@ app-http-logger is structured as three docker-compose files:
 
 The stack can be started in different modes depending on the `docker-compose.*.yml` files that are taken into account. The different options are described below.
 
-It's important to note that `docker-compose.encrypt.yml` and `docker-compose.live.yml` can at present not be used together, as they each create a separate Logstash pipeline that tries to listen on the same port for Packetbeat events.
-
 ### Option 1: Logging traffic and directly visualizing it
 This is the default mode of this project. Logs are collected and immediately imported in the visualization stack. To start logging containers, add the `logging` label to the containers you want to monitor.
 
@@ -29,7 +27,7 @@ docker compose up -d
 
 Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index patterns `http-log*` and `stats*` and click on 'discover'.
 
-_Note: the intermediate logs are not written to files. As a consequence in this setup no backups of the logs can be taken. This is probably not what you want in production._
+_Note: the intermediate logs are not written to files. As a consequence in this setup no backups of the logs can be taken. This is probably not what you want in production. To have both live visualization and backups of the logs use [Option 4: Logging traffic to (encrypted) files and directly visualizing it](#option-4-logging-traffic-to-encrypted-files-and-directly-visualizing-it) instead._
 
 ### Option 2: Logging traffic to (encrypted) files
 In this mode, data is captured and written to files. This is probably your prefered mode on production machines. HTTP logs get encrypted, stats remain unencrypted. Visualization is not running live on the data, but can be setup on any machine (see option 3).
@@ -83,6 +81,24 @@ mu script visualize-scripts stats
 Logs will be visible in Kibana at `http://localhost:5601`. Add the index patterns `http-log*` and `stats*` and click on 'discover'.
 
 _Note: the visualization scripts don't keep track which files have already been imported. Hence, running the script twice on the same set of files will result in duplicate entries._
+
+### Option 4: Logging traffic to (encrypted) files and directly visualizing it
+
+This mode is a combination of [Option 1: Logging traffic and directly visualizing it](#option-1-logging-traffic-and-directly-visualizing-it) and [Option 2: Logging traffic to (encrypted) files](#option-2-logging-traffic-to-encrypted-files). It allows you to directly visualize logs as in option 1, but also log traffic to (encrypted) files as in option 2. This is useful for environments where you want to have both live visualization and backups of the logs.
+
+Ensure the `.env` file contains the following contents:
+```
+COMPOSE_FILE=docker-compose.yml:docker-compose.live.yml:docker-compose.visualize.yml:docker-compose.encrypt.yml
+```
+
+Check that the `encrypt` service is configured as specified in [Logging traffic to (encrypted) files](#option-2-logging-traffic-to-encrypted-files).
+
+Start the app-http-logger by running:
+``` sh
+docker compose up -d
+```
+
+For information on how to visualize the logs see [Logging traffic and directly visualizing it](#option-1-logging-traffic-and-directly-visualizing-it). For information on where to find the logs see [Logging traffic to (encrypted) files](#option-2-logging-traffic-to-encrypted-files).
 
 ### Importing and exporting dashboards
 
