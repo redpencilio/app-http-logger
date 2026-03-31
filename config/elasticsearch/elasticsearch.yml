@@ -1,7 +1,10 @@
 http:
-#  port: 9200
+  #  port: 9200
+  max_content_length: 200MB
   pipelining:
     max_events: 100000
+
+xpack.security.enabled: false
 
 path:
   data: /usr/share/elasticsearch/data

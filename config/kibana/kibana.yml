@@ -1,6 +1,5 @@
 elasticsearch:
-  hosts:  ["http://elasticsearch:9200"]
-  startupTimeout: 30000
+  hosts: ["http://elasticsearch:9200"]
 
 server:
   host: 0.0.0.0
