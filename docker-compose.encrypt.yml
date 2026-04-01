@@ -8,7 +8,7 @@ x-logging:
 services:
   logstash:
     volumes:
-      - ./config/logstash-http/http-file-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./config/logstash-http/output-file.conf:/usr/share/logstash/pipeline/output-file.conf:ro
       - ./data/logs/http:/usr/share/logstash/data:rw
     environment:
       LOGFILE_FORMAT_STRING: '/usr/share/logstash/data/http-log-%{+YYYY-MM-dd-HH}.json'
@@ -16,7 +16,7 @@ services:
     logging: *default-logging
   stats-logstash:
     volumes:
-      - ./config/logstash-stats/stats-file-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./config/logstash-stats/output-file.conf:/usr/share/logstash/pipeline/output-file.conf:ro
       - ./data/logs/stats:/usr/share/logstash/data:rw
     environment:
       LOGFILE_FORMAT_STRING: '/usr/share/logstash/data/stats-%{+YYYY-MM-dd-HH}.json'

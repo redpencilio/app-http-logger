@@ -8,11 +8,11 @@ x-logging:
 services:
   logstash:
     volumes:
-      - ./config/logstash-http/http-visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./config/logstash-http/output-visualize.conf:/usr/share/logstash/pipeline/output-visualize.conf:ro
     environment:
       LS_JAVA_OPTS: "-Xms256m -Xmx256m"
     logging: *default-logging
   stats-logstash:
     volumes:
-      - ./config/logstash-stats/stats-visualize-pipeline.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./config/logstash-stats/output-visualize.conf:/usr/share/logstash/pipeline/output-visualize.conf:ro
     logging: *default-logging
