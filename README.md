@@ -27,7 +27,7 @@ docker compose up -d
 
 Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index patterns `http-log*` and `stats*` and click on 'discover'.
 
-_Note: the intermediate logs are not written to files. As a consequence in this setup no backups of the logs can be taken. This is probably not what you want in production. To have both live visualization and backups of the logs use [Option 4: Logging traffic to (encrypted) files and directly visualizing it](#option-4-logging-traffic-to-encrypted-files-and-directly-visualizing-it) instead._
+_Note: the intermediate logs are not written to files. As a consequence in this setup no backups of the logs can be taken. This is probably not what you want in production. To have both live visualization and backups of the logs use [Option 3: Logging traffic to (encrypted) files and directly visualizing it](#option-3-logging-traffic-to-encrypted-files-and-directly-visualizing-it) instead._
 
 ### Option 2: Logging traffic to (encrypted) files
 In this mode, data is captured and written to files. This is probably your prefered mode on production machines. HTTP logs get encrypted, stats remain unencrypted. Visualization is not running live on the data, but can be setup on any machine (see option 3).
@@ -48,7 +48,25 @@ docker compose up -d
 
 Plain text logs will be stored in `./data/logs`. Encrypted logs will be stored in the `./data/encrypted` directory. Compressed logs will be stored in `./data/compressed`.
 
-### Option 3: Visualizing (encrypted) logs from files
+### Option 3: Logging traffic to (encrypted) files and directly visualizing it
+
+This mode is a combination of [Option 1: Logging traffic and directly visualizing it](#option-1-logging-traffic-and-directly-visualizing-it) and [Option 2: Logging traffic to (encrypted) files](#option-2-logging-traffic-to-encrypted-files). It allows you to directly visualize logs as in option 1, but also log traffic to (encrypted) files as in option 2. This is useful for environments where you want to have both live visualization and backups of the logs.
+
+Ensure the `.env` file contains the following contents:
+```
+COMPOSE_FILE=docker-compose.yml:docker-compose.live.yml:docker-compose.visualize.yml:docker-compose.encrypt.yml
+```
+
+Check that the `encrypt` service is configured as specified in [Logging traffic to (encrypted) files](#option-2-logging-traffic-to-encrypted-files).
+
+Start the app-http-logger by running:
+``` sh
+docker compose up -d
+```
+
+For information on how to visualize the logs see [Logging traffic and directly visualizing it](#option-1-logging-traffic-and-directly-visualizing-it). For information on where to find the logs see [Logging traffic to (encrypted) files](#option-2-logging-traffic-to-encrypted-files).
+
+### Option 4: Visualizing (encrypted) logs from files
 In this mode, only the services for visualization are started. Scripts are provided to import encrypted log files and compressed stats files in Elasticsearch. The visualization stack doesn't need to run on the same server where the data is captured.
 
 Update the `.env` file to use the following docker-compose files:
@@ -81,24 +99,6 @@ mu script visualize-scripts stats
 Logs will be visible in Kibana at `http://localhost:5601`. Add the index patterns `http-log*` and `stats*` and click on 'discover'.
 
 _Note: the visualization scripts don't keep track which files have already been imported. Hence, running the script twice on the same set of files will result in duplicate entries._
-
-### Option 4: Logging traffic to (encrypted) files and directly visualizing it
-
-This mode is a combination of [Option 1: Logging traffic and directly visualizing it](#option-1-logging-traffic-and-directly-visualizing-it) and [Option 2: Logging traffic to (encrypted) files](#option-2-logging-traffic-to-encrypted-files). It allows you to directly visualize logs as in option 1, but also log traffic to (encrypted) files as in option 2. This is useful for environments where you want to have both live visualization and backups of the logs.
-
-Ensure the `.env` file contains the following contents:
-```
-COMPOSE_FILE=docker-compose.yml:docker-compose.live.yml:docker-compose.visualize.yml:docker-compose.encrypt.yml
-```
-
-Check that the `encrypt` service is configured as specified in [Logging traffic to (encrypted) files](#option-2-logging-traffic-to-encrypted-files).
-
-Start the app-http-logger by running:
-``` sh
-docker compose up -d
-```
-
-For information on how to visualize the logs see [Logging traffic and directly visualizing it](#option-1-logging-traffic-and-directly-visualizing-it). For information on where to find the logs see [Logging traffic to (encrypted) files](#option-2-logging-traffic-to-encrypted-files).
 
 ### Importing and exporting dashboards
 
