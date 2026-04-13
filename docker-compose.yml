@@ -48,13 +48,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     logging: *default-logging
   logstash:
-    image: redpencil/http-logger-logstash:0.3.0
-    user: "root"
+    image: redpencil/http-logger-logstash-service:0.4.0
     networks:
       - default
       - logstash-network
     volumes:
-      - "./config/logstash-http/input.conf:/usr/share/logstash/pipeline/input.conf:ro"
+      - "./config/logstash-http/input.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
       - "./config/logstash-http/filter.conf:/usr/share/logstash/pipeline/filter.conf:ro"
     logging: *default-logging
   stats-logstash:

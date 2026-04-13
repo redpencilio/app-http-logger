@@ -6,31 +6,71 @@ x-logging:
     max-file: "3"
 
 services:
+  setup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.13
+    volumes:
+      - ./config/certs:/usr/share/elasticsearch/config/certs
+      - ./config/setup/setup.sh:/usr/local/bin/setup.sh:ro
+    user: "0"
+    command: >
+      bash /usr/local/bin/setup.sh
+    environment:
+      - ELASTIC_PASSWORD
+      - KIBANA_PASSWORD
+      - LOGSTASH_PASSWORD
+      - ELASTIC_HOST
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f config/certs/es/es.crt ]"]
+      interval: 1s
+      timeout: 5s
+      retries: 120
+    logging: *default-logging
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.13
+    depends_on:
+      setup:
+        condition: service_healthy
     volumes:
       - ./data/esdata:/usr/share/elasticsearch/data
+      - ./config/certs:/usr/share/elasticsearch/config/certs:ro
       - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     environment:
-      http.max_content_length: 200MB
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
     logging: *default-logging
   kibana:
-    image: docker.elastic.co/kibana/kibana-oss:7.6.2
+    image: docker.elastic.co/kibana/kibana:8.19.13
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
     ports:
       - 127.0.0.1:5601:5601
     volumes:
       - ./scripts/kibana/:/app/scripts/
+      - ./config/certs:/usr/share/kibana/config/certs:ro
       - ./config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
-      - ./config/kibana/kbn_network_7.6.2_patched.tar.gz:/kbn_network.tar.gz:ro
-    user: root
-    # Probably the simplest way to install a plugin.
-    command: |
-      sh -c "/bin/tar -xf /kbn_network.tar.gz -C /usr/share/kibana/plugins;
-             /usr/local/bin/kibana-docker --allow-root;"
-
+    environment:
+      ELASTICSEARCH_PASSWORD: ${KIBANA_PASSWORD}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
     logging: *default-logging
   visualize-scripts:
     image: semtech/mu-scripts:1.0.0

@@ -3,3 +3,4 @@ keys/
 data/
 docker-compose.override.yml
 *~
+config/certs/
