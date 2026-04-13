@@ -9,10 +9,17 @@ services:
   logstash:
     volumes:
       - ./config/logstash-http/output-visualize.conf:/usr/share/logstash/pipeline/output-visualize.conf:ro
+      - ./config/certs/ca:/usr/share/logstash/config/certs/ca:ro
     environment:
       LS_JAVA_OPTS: "-Xms256m -Xmx256m"
+      ELASTIC_HOST: ${ELASTIC_HOST}
+      LOGSTASH_PASSWORD: ${LOGSTASH_PASSWORD}
     logging: *default-logging
   stats-logstash:
     volumes:
       - ./config/logstash-stats/output-visualize.conf:/usr/share/logstash/pipeline/output-visualize.conf:ro
+      - ./config/certs/ca:/usr/share/logstash/config/certs/ca:ro
+    environment:
+      ELASTIC_HOST: ${ELASTIC_HOST}
+      LOGSTASH_PASSWORD: ${LOGSTASH_PASSWORD}
     logging: *default-logging

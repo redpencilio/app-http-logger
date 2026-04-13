@@ -1,10 +1,7 @@
 http:
-  #  port: 9200
   max_content_length: 200MB
   pipelining:
     max_events: 100000
-
-xpack.security.enabled: false
 
 path:
   data: /usr/share/elasticsearch/data
@@ -14,3 +11,11 @@ discovery:
 
 network:
   host: 0
+
+xpack.security:
+  enabled: true
+  http.ssl:
+    enabled: true
+    key: certs/es/es.key
+    certificate: certs/es/es.crt
+    certificate_authorities: certs/ca/ca.crt

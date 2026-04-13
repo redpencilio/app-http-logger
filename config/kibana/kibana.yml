@@ -1,5 +1,7 @@
 elasticsearch:
-  hosts: ["http://elasticsearch:9200"]
+  hosts: ["https://elasticsearch:9200"]
+  username: kibana_system
+  ssl.certificateAuthorities: config/certs/ca/ca.crt
 
 server:
   host: 0.0.0.0
