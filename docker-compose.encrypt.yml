@@ -13,7 +13,6 @@ services:
     environment:
       LOGFILE_FORMAT_STRING: '/data/http-log-%{+YYYY-MM-dd-HH}.json'
       LS_JAVA_OPTS: "-Xms512m -Xmx512m"
-    logging: *default-logging
   stats-logstash:
     volumes:
       - ./config/logstash-stats/output-to-file.conf:/pipeline/output-to-file.conf:ro
@@ -21,7 +20,6 @@ services:
     environment:
       LOGFILE_FORMAT_STRING: '/data/stats-%{+YYYY-MM-dd-HH}.json'
       LS_JAVA_OPTS: "-Xms512m -Xmx512m"
-    logging: *default-logging
   encrypt:
     image: redpencil/file-encryption-service:1.1.0
     volumes:

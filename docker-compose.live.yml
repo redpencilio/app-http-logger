@@ -1,18 +1,9 @@
-x-logging:
-  &default-logging
-  driver: "json-file"
-  options:
-    max-size: "10m"
-    max-file: "3"
-
 services:
   logstash:
     volumes:
       - ./config/logstash-http/output-to-es.conf:/pipeline/output-to-es.conf:ro
     environment:
       LS_JAVA_OPTS: "-Xms2g -Xmx2g"
-    logging: *default-logging
   stats-logstash:
     volumes:
       - ./config/logstash-stats/output-to-es.conf:/pipeline/output-to-es.conf:ro
-    logging: *default-logging
