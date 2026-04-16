@@ -14,5 +14,5 @@ services:
     logging: *default-logging
   stats-logstash:
     volumes:
-      - ./config/logstash-stats/output-visualize.conf:/usr/share/logstash/pipeline/output-visualize.conf:ro
+      - ./config/logstash-stats/output-to-es.conf:/pipeline/output-to-es.conf:ro
     logging: *default-logging

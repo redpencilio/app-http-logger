@@ -56,11 +56,9 @@ services:
       - logstash-network
     logging: *default-logging
   stats-logstash:
-    image: redpencil/http-logger-logstash-service:0.1.0
-    user: "root"
+    image: redpencil/http-logger-logstash:feature-upgrade-logstash
     volumes:
-      - "./config/logstash-stats/input.conf:/usr/share/logstash/pipeline/input.conf:ro"
-      - "./config/logstash-stats/filter.conf:/usr/share/logstash/pipeline/filter.conf:ro"
+      - ./config/logstash-stats/input-from-http.conf:/pipeline/input.conf:ro"
     networks:
       - default
       - logstash-network
