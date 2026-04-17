@@ -1,8 +1,0 @@
-elasticsearch:
-  hosts:  ["http://elasticsearch:9200"]
-  startupTimeout: 30000
-
-server:
-  host: 0.0.0.0
-  name: kibana
-  port: 5601
