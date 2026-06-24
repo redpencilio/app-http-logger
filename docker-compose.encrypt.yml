@@ -12,7 +12,7 @@ services:
       - ./data/logs/http:/usr/share/logstash/data:rw
     environment:
       LOGFILE_FORMAT_STRING: '/usr/share/logstash/data/http-log-%{+YYYY-MM-dd-HH}.json'
-      LS_JAVA_OPTS: "-Xms512m -Xmx512m"
+      LS_JAVA_OPTS: "-Xms512m -Xmx512m -XX:+ExitOnOutOfMemoryError"
     logging: *default-logging
   stats-logstash:
     volumes:
@@ -20,7 +20,7 @@ services:
       - ./data/logs/stats:/usr/share/logstash/data:rw
     environment:
       LOGFILE_FORMAT_STRING: '/usr/share/logstash/data/stats-%{+YYYY-MM-dd-HH}.json'
-      LS_JAVA_OPTS: "-Xms512m -Xmx512m"
+      LS_JAVA_OPTS: "-Xms512m -Xmx512m -XX:+ExitOnOutOfMemoryError"
     logging: *default-logging
   encrypt:
     image: redpencil/file-encryption-service:1.1.0
