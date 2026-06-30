@@ -3,7 +3,8 @@ services:
     volumes:
       - ./config/logstash-http/output-to-es.conf:/pipeline/output-to-es.conf:ro
     environment:
-      LS_JAVA_OPTS: "-Xms2g -Xmx2g"
+      LS_JAVA_OPTS: "-Xms512m -Xmx512m"
+    restart: "always"
   stats-logstash:
     volumes:
       - ./config/logstash-stats/output-to-es.conf:/pipeline/output-to-es.conf:ro
