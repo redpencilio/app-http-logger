@@ -19,6 +19,13 @@ print("Importing all dashboards found in 'dashboards' directory")
 for filePath in dashboardDir.iterdir():
     if not filePath.is_file():
         continue
+    if filePath.suffix != '.ndjson':
+        continue
 
-    r = requests.post("http://{0:s}/api/kibana/dashboards/import".format(sys.argv[1]), data=filePath.read_text(), headers={'kbn-xsrf' : 'true'})
+    with open(filePath, 'rb') as f:
+        r = requests.post(
+            "http://{0:s}/api/saved_objects/_import?overwrite=true".format(sys.argv[1]),
+            files={'file': (filePath.name, f, 'application/ndjson')},
+            headers={'kbn-xsrf': 'true'}
+        )
     print("- [Response status {0}] {1}".format(r.status_code, os.path.basename(filePath)));
