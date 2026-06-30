@@ -64,7 +64,7 @@ services:
       - logstash-network
     logging: *default-logging
   triplestore:
-    image: redpencil/virtuoso:1.2.0-rc.1
+    image: redpencil/virtuoso:1.4.0
     environment:
       SPARQL_UPDATE: "true"
       DEFAULT_GRAPH: "http://mu.semte.ch/application"
