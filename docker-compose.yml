@@ -7,7 +7,7 @@ x-logging:
 
 services:
   monitor:
-    image: redpencil/docker-monitor:1.4.0
+    image: redpencil/docker-monitor:1.4.1
     privileged: true
     userns_mode: "host"
     volumes:
