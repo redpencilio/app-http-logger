@@ -20,7 +20,7 @@ services:
     environment:
       AUTO_DELETE_CONTAINERS: "on"
   capture:
-    image: redpencil/docker-network-capture-service:1.9.0
+    image: redpencil/docker-network-capture-service:1.10.0
     privileged: true
     userns_mode: "host"
     volumes:
@@ -48,7 +48,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     logging: *default-logging
   logstash:
-    image: redpencil/http-logger-logstash:1.0.0
+    image: redpencil/http-logger-logstash:1.1.0
     volumes:
       - ./config/logstash-http/input-from-beats.conf:/pipeline/input.conf:ro
     networks:
