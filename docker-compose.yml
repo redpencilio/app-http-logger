@@ -19,6 +19,7 @@ services:
     image: redpencil/cleanup-removed-containers:0.1.0
     environment:
       AUTO_DELETE_CONTAINERS: "on"
+    logging: *default-logging
   capture:
     image: redpencil/docker-network-capture-service:1.10.0
     privileged: true
