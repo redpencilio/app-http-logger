@@ -1,0 +1,24 @@
+x-logging:
+  &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  logstash:
+    image: redpencil/http-logger-logstash:1.1.0
+    environment:
+      SECRET_KEY: "my-secret-key"
+    volumes:
+      - ./config/logstash-http/input-from-remote.conf:/pipeline/input.conf:ro
+      - ./config/logstash-http/output-to-es.conf:/pipeline/output.conf:ro
+    logging: *default-logging
+  stats-logstash:
+    image: redpencil/http-logger-logstash:1.1.0
+    environment:
+      SECRET_KEY: "my-secret-key"
+    volumes:
+      - ./config/logstash-stats/input-from-remote.conf:/pipeline/input.conf:ro
+      - ./config/logstash-stats/output-to-es.conf:/pipeline/output.conf:ro
+    logging: *default-logging
