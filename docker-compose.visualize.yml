@@ -31,6 +31,18 @@ services:
     volumes:
       - ./scripts/kibana/:/app/scripts/
     logging: *default-logging
+  curator:
+    image: untergeek/curator:9.0.0
+    volumes:
+      - ./config/curator:/config
+    environment:
+      LOG_RETENTION_DAYS: 1825 # 5 year
+    entrypoint: >
+      sh -c "while true; do
+        /curator/curator --config /config/config.yml /config/actions.yml;
+        sleep 3600;
+      done"
+    logging: *default-logging
   visualize-scripts:
     image: semtech/mu-scripts:1.0.0
     volumes:

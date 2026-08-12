@@ -1,0 +1,6 @@
+elasticsearch:
+  client:
+    hosts:
+      - http://elasticsearch:9200
+logging:
+  loglevel: INFO

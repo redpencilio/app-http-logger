@@ -1,0 +1,18 @@
+actions:
+  1:
+    action: delete_indices
+    description: >-
+      Delete indices older than ${LOG_RETENTION_DAYS} days based on index name,
+      for http-log- or stats- prefixed indices.
+    options:
+      ignore_empty_list: True
+    filters:
+    - filtertype: pattern
+      kind: regex
+      value: '^(http-log-|stats-).*$'
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: ${LOG_RETENTION_DAYS}
