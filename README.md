@@ -2,9 +2,7 @@
 Provide out-of-the-box automatic logging of your running docker containers, and make the data available on ElasticSearch + Kibana for further analysis and visualization.
 
 ## Getting started
-The stack can be started in different modes depending on the `docker-compose.*.yml` files that are taken into account. The different options are described below.
-
-Add a `logging` label to all containers you want to be monitored.
+Add a `logging` label to all containers you want to monitor.
 
 ``` yaml
 services:
@@ -14,8 +12,10 @@ services:
       - "logging=true"
 ```
 
-### Option 1: Logging traffic and directly visualizing it
-This is the default mode of this project. Logs are collected and immediately imported in the visualization stack. To start logging containers, add the `logging` label to the containers you want to monitor.
+The stack can be started in different modes depending on the `docker-compose.*.yml` files that are taken into account. Some typical base scenarios are described below, but you can also combine them.
+
+### Option 1: Logging traffic and directly visualizing it (development mode)
+This is the default mode of this project. Logs are collected and immediately imported in the visualization stack. This is what you typically want to do during development. To start logging containers, add the `logging` label to the containers you want to monitor.
 
 Ensure the `.env` file contains the following contents:
 ```
@@ -29,10 +29,10 @@ docker compose up -d
 
 Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index patterns `http-log*` and `stats*` and click on 'discover'.
 
-_Note: the intermediate logs are not written to files. As a consequence in this setup no backups of the logs can be taken. This is probably not what you want in production. To have both live visualization and backups of the logs use [Option 3: Logging traffic to (encrypted) files and directly visualizing it](#option-3-logging-traffic-to-encrypted-files-and-directly-visualizing-it) instead._
+_Note: the intermediate logs are not written to files. As a consequence in this setup no backups of the logs can be taken. This is probably not what you want in production._
 
 ### Option 2: Logging traffic to (encrypted) files
-In this mode, data is captured and written to files. This is probably your prefered mode on production machines. HTTP logs get encrypted, stats remain unencrypted. Visualization is not running live on the data, but can be setup on any machine (see option 3).
+In this mode, data is captured and written to files. This is probably your prefered mode on production machines. HTTP logs get encrypted, stats remain unencrypted. Visualization is not running live on the data, but can be setup on any machine (see [option 3](#option-3-visualizing-encrypted-logs-from-files)).
 
 Update the `.env` file to use the following docker-compose files:
 ```
@@ -48,28 +48,10 @@ Start the app-http-logger by running:
 docker compose up -d
 ```
 
-Plain text logs will be stored in `./data/logs`. Encrypted logs will be stored in the `./data/encrypted` directory. Compressed logs will be stored in `./data/compressed`.
+Encrypted logs will be stored in the `./data/encrypted` directory. Compressed logs will be stored in `./data/compressed`. You probably want to backup these folders.
 
-### Option 3: Logging traffic to (encrypted) files and directly visualizing it
-
-This mode is a combination of [Option 1: Logging traffic and directly visualizing it](#option-1-logging-traffic-and-directly-visualizing-it) and [Option 2: Logging traffic to (encrypted) files](#option-2-logging-traffic-to-encrypted-files). It allows you to directly visualize logs as in option 1, but also log traffic to (encrypted) files as in option 2. This is useful for environments where you want to have both live visualization and backups of the logs.
-
-Ensure the `.env` file contains the following contents:
-```
-COMPOSE_FILE=docker-compose.yml:docker-compose.live.yml:docker-compose.visualize.yml:docker-compose.encrypt.yml
-```
-
-Check that the `encrypt` service is configured as specified in [Logging traffic to (encrypted) files](#option-2-logging-traffic-to-encrypted-files).
-
-Start the app-http-logger by running:
-``` sh
-docker compose up -d
-```
-
-For information on how to visualize the logs see [Logging traffic and directly visualizing it](#option-1-logging-traffic-and-directly-visualizing-it). For information on where to find the logs see [Logging traffic to (encrypted) files](#option-2-logging-traffic-to-encrypted-files).
-
-### Option 4: Visualizing (encrypted) logs from files
-In this mode, only the services for visualization are started. Scripts are provided to import encrypted log files and compressed stats files in Elasticsearch. The visualization stack doesn't need to run on the same server where the data is captured.
+### Option 3: Visualizing (encrypted) logs from files
+In this mode, only the services for visualization are started. Scripts are provided to import encrypted log files and compressed stats files in Elasticsearch. The visualization stack doesn't need to run on the same server where the data is captured. This is a typical scenario for viewing logs from the backups.
 
 Update the `.env` file to use the following docker-compose files:
 ```
@@ -102,6 +84,68 @@ Logs will be visible in Kibana at `http://localhost:5601`. Add the index pattern
 
 _Note: the visualization scripts don't keep track which files have already been imported. Hence, running the script twice on the same set of files will result in duplicate entries._
 
+### Option 4: Logging traffic and sending it live to a remote visualization stack
+In this mode, logs are captured on one host and sent live to a remote visualization stack for indexing and visualization. This means **two stacks will be running at the same time**: an **upstream** stack that collects the logs and sends them to the remote, and a **downstream** stack that receives the logs and visualizes them in Kibana. This is a typical scenario when the machine that captures the traffic is not the same machine that runs the visualization stack (e.g. capturing on a production host while visualizing on a separate, more powerful server).
+
+Communication between the two stacks happens over HTTP(s) and is protected by a **shared secret**.
+* On the **upstream** side it is configured through the `REMOTE_SECRET_KEY` environment variable on the `logstash` (and `stats-logstash`) service in `docker-compose.to-remote.yml`.
+* On the **downstream** side it is configured through the `SECRET_KEY` environment variable on the `logstash` (and `stats-logstash`) service in `docker-compose.from-remote.yml`.
+
+The upstream additionally needs to know where to send the logs. This is configured through the `REMOTE_HOST` environment variable, which must point to the URL of the downstream logstash endpoint.
+
+#### Upstream stack (collecting and sending logs)
+
+Update the `.env` file to use the following docker-compose files:
+```
+COMPOSE_FILE=docker-compose.yml:docker-compose.to-remote.yml
+```
+
+Edit `docker-compose.to-remote.yml` to configure the remote endpoint and the shared secret for both the HTTP and the stats logstash:
+``` yaml
+services:
+  logstash:
+    environment:
+      REMOTE_HOST: "https://http-logs.example.com"
+      REMOTE_SECRET_KEY: "your-shared-secret"
+  stats-logstash:
+    environment:
+      REMOTE_HOST: "https://stats-logs.example.com"
+      REMOTE_SECRET_KEY: "another-shared-secret"
+```
+
+Add the `logging` label to the containers you want to monitor.
+
+Start the upstream app-http-logger by running:
+``` sh
+docker compose up -d
+```
+
+#### Downstream stack (receiving and visualizing logs)
+
+Update the `.env` file to use the following docker-compose files:
+```
+COMPOSE_FILE=docker-compose.from-remote.yml:docker-compose.visualize.yml
+```
+
+Edit `docker-compose.from-remote.yml` to configure the shared secret. You should also configure the `logstash` and `stats-logstash` service to be available on the URL configured in the upstream stack. Logstash listens on port 8080.
+``` yaml
+services:
+  logstash:
+    environment:
+      SECRET_KEY: "your-shared-secret"
+  stats-logstash:
+    environment:
+      SECRET_KEY: "another-shared-secret"
+```
+
+_Start the downstream stack first_ so that it is ready to receive logs:
+``` sh
+docker compose up -d
+```
+
+Logs will be visible in Kibana of the downstream stack at `http://localhost:5601`. Add the index patterns `http-log*` and `stats*` and click on 'discover'.
+
+## How-to guides
 ### Importing and exporting dashboards
 
 If you create dashboards to visualize logs, you can export these to JSON files and load them again later. The Kibana service must be started and ready to use these scripts.
@@ -116,28 +160,6 @@ To import dashboards, put the JSON files as created by the export script in the 
 ``` sh
 mu script kibana dashboard-import
 ```
-
-## Configuration
-### docker-compose.yml
-#### monitor
-* `MONITOR_SYNC_INTERVAL`: default: `10000` is the interval in milliseconds between syncs of the docker daemon container state to the database resulting in deltas being sent (if any update to the containers on the system occurred).
-
-#### capture
-* `PACKETBEAT_LISTEN_PORTS` determines the ports on which traffic is logged.
-* `PACKETBEAT_MAX_MESSAGE_SIZE` determines the maximum size of a message before its content is no longer logged.
-* `CAPTURE_SYNC_INTERVAL` determines the interval in milliseconds between full syncs of monitor state from the database.
-* `MONITOR_IMAGE` is the name of the image for monitor containers. Note that this image is *always pulled* and thus **must** be a remote image.
-
-#### stats
-* `QUERY_INTERVAL` Interval (in ms) by which the service should fetch new stats.
-
-### docker-compose.encrypt.yml
-#### logstash
-* `LOGFILE_FORMAT_STRING` determines the name of the generated log files. `%{+YYYY-MM-dd}` is a time format string.
-
-#### encrypt
-* `ENCRYPT_RECIPIENT` is the e-mail address of the encryption key.
-* Additional configuration is documented in the [README of the service](https://github.com/redpencilio/file-encryption-service)
 
 ## Troubleshooting
 ### Elasticsearch and/or Virtuoso fail to start
@@ -173,6 +195,42 @@ The following docker-compose files are available.
 * `docker-compose.to-remote.yml`: provides a Logstash pipeline that pushes HTTP logs and stats to a remote visualization stack.
 * `docker-compose.from-remote.yml`: provides a Logstash pipeline that ingests HTTP logs and stats originating from a remote stack.
 * `docker-compose.visualize.yml`: provides an ElasticSearch and Kibana container for indexing and visualization.
+
+
+## Configuration
+### docker-compose.yml
+#### monitor
+* `MONITOR_SYNC_INTERVAL`: default: `10000` is the interval in milliseconds between syncs of the docker daemon container state to the database resulting in deltas being sent (if any update to the containers on the system occurred).
+
+#### capture
+* `PACKETBEAT_LISTEN_PORTS` determines the ports on which traffic is logged.
+* `PACKETBEAT_MAX_MESSAGE_SIZE` determines the maximum size of a message before its content is no longer logged.
+* `CAPTURE_SYNC_INTERVAL` determines the interval in milliseconds between full syncs of monitor state from the database.
+* `MONITOR_IMAGE` is the name of the image for monitor containers. Note that this image is *always pulled* and thus **must** be a remote image.
+
+#### stats
+* `QUERY_INTERVAL` Interval (in ms) by which the service should fetch new stats.
+
+### docker-compose.encrypt.yml
+#### logstash | stats-logstash
+* `LOGFILE_FORMAT_STRING` determines the name of the generated log files. `%{+YYYY-MM-dd}` is a time format string.
+
+#### encrypt
+* `ENCRYPT_RECIPIENT` is the e-mail address of the encryption key.
+* Additional configuration is documented in the [README of the service](https://github.com/redpencilio/file-encryption-service)
+
+### docker-compose.to-remote.yml
+#### logstash | stats-logstash
+* `REMOTE_HOST`: URL of the remote logstash to send logs to
+* `REMOTE_SECRET_KEY`: Shared secret to send logs to a remote stack
+
+### docker-compose.from-remote.yml
+#### logstash | stats-logstash
+* `SECRET_KEY`: Shared secret to receive logs from a remote stack
+
+### docker-compose.visualize.yml
+#### curator
+* `LOG_RETENTION_DAYS`: Number of days to retain logs in Elasticsearch before they are automatically removed. Defaults to 3650 (10 years)."
 
 ### Components
 * [docker-monitor-service](https://github.com/redpencilio/docker-monitor-service/): keeps track of running containers in the database.

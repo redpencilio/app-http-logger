@@ -36,7 +36,7 @@ services:
     volumes:
       - ./config/curator:/config
     environment:
-      LOG_RETENTION_DAYS: 1825 # 5 year
+      LOG_RETENTION_DAYS: 3650 # 10 year
     entrypoint: >
       sh -c "while true; do
         /curator/curator --config /config/config.yml /config/actions.yml;
