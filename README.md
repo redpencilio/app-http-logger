@@ -1,16 +1,18 @@
 # app-http-logger
 Provide out-of-the-box automatic logging of your running docker containers, and make the data available on ElasticSearch + Kibana for further analysis and visualization.
 
-## Usage
-app-http-logger is structured as three docker-compose files:
-* `docker-compose.yml`: provides common base functionality: services to capture HTTP traffic and docker stats for every container; logstash services to handle captured logs; database infrastructure.
-* `docker-compose.encrypt.yml`: provides a Logstash pipeline that writes HTTP logs and stats to a file, and an encryption/compression service that will periodically encrypt/compress the written HTTP/stats logs.
-* `docker-compose.live.yml`: provides a Logstash pipeline that pushes HTTP logs and stats directly to Elasticsearch for indexing and visualization.
-* `docker-compose.visualize.yml`: provides an ElasticSearch and Kibana container for indexing and visualization.
-
-**Only containers with a label called `logging` (with any value) will be monitored**. Do not forget to set this label.
-
+## Getting started
 The stack can be started in different modes depending on the `docker-compose.*.yml` files that are taken into account. The different options are described below.
+
+Add a `logging` label to all containers you want to be monitored.
+
+``` yaml
+services:
+  my-service:
+    image: my/example:1.0.0
+    labels:
+      - "logging=true"
+```
 
 ### Option 1: Logging traffic and directly visualizing it
 This is the default mode of this project. Logs are collected and immediately imported in the visualization stack. To start logging containers, add the `logging` label to the containers you want to monitor.
@@ -160,28 +162,28 @@ Although not explicitly supported, app-http-logger can work on rootless docker w
 +       - /run/user/1000/docker.sock:/var/run/docker.sock
 ```
 
-## Components
+## Reference
+### Operational modes
+The stack can be started in different modes depending on the `docker-compose.*.yml` files that are taken into account. The different scenarios and their typical usage are described in the [Getting started guide](#getting-started).
 
+The following docker-compose files are available.
+* `docker-compose.yml`: provides common base functionality: services to capture HTTP traffic and docker stats for every container; logstash services to handle captured logs; database infrastructure.
+* `docker-compose.encrypt.yml`: provides a Logstash pipeline that writes HTTP logs and stats to a file, and an encryption/compression service that will periodically encrypt/compress the written HTTP/stats logs.
+* `docker-compose.live.yml`: provides a Logstash pipeline that pushes HTTP logs and stats directly to Elasticsearch for indexing and visualization.
+* `docker-compose.to-remote.yml`: provides a Logstash pipeline that pushes HTTP logs and stats to a remote visualization stack.
+* `docker-compose.from-remote.yml`: provides a Logstash pipeline that ingests HTTP logs and stats originating from a remote stack.
+* `docker-compose.visualize.yml`: provides an ElasticSearch and Kibana container for indexing and visualization.
+
+### Components
 * [docker-monitor-service](https://github.com/redpencilio/docker-monitor-service/): keeps track of running containers in the database.
-
 * [docker-network-capture-service](https://github.com/redpencilio/docker-network-capture-service/): spawns packetbeat containers to monitor other containers.
-
 * [docker-stats-service](https://github.com/redpencilio/docker-stats-service): fetches Docker stats and dumps them into logstash.
-
 * [file-encryption-service](https://github.com/redpencilio/file-encryption-service/): encrypts logfiles.
-
 * [file-compression-service](https://github.com/redpencilio/file-compression-service/): compresses logfiles.
-
 * [http-logger-packetbeat-service](https://github.com/redpencilio/http-logger-packetbeat-service/): spawned by network capture service, monitors the traffic of the attached container.
-
 * [elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html): search engine/database.
-
 * [kibana](https://www.elastic.co/guide/en/kibana/current/index.html): dashboard .
-
 * [logstash](https://www.elastic.co/guide/en/logstash/current/index.html): log processing.
-
 * [packetbeat](https://www.elastic.co/guide/en/beats/packetbeat/current/index.html): network monitoring.
-
-* [mu-authorization](https://github.com/mu-semtech/delta-notifier): abstraction layer for the database, create delta's from database state changes.
-
+* [mu-authorization](https://github.com/mu-semtech/sparql-parser): abstraction layer for the database, create delta's from database state changes.
 * [delta-notifier](https://github.com/mu-semtech/delta-notifier): notify network capture service of changes in docker state.
