@@ -57,7 +57,7 @@ services:
       - logstash-network
     logging: *default-logging
   stats-logstash:
-    image: redpencil/http-logger-logstash:1.0.0
+    image: redpencil/http-logger-logstash:1.1.0
     volumes:
       - ./config/logstash-stats/input-from-http.conf:/pipeline/input.conf:ro"
     networks:
