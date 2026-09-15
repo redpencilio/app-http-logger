@@ -64,6 +64,16 @@ services:
       - default
       - logstash-network
     logging: *default-logging
+  docker-logs-filebeat:
+    image: docker.elastic.co/beats/filebeat-oss:9.5.4
+    user: "root"
+    volumes:
+      - ./config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command:
+      - -e
+      - --strict.perms=false
   triplestore:
     image: redpencil/virtuoso:1.4.0
     environment:
