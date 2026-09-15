@@ -1,0 +1,24 @@
+setup.template.enabled: false # Disable data streams
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      templates:
+        - condition:
+            has_fields: ['docker.container.labels.logging']
+          config:
+            - type: filestream
+              id: container-${data.docker.container.id}
+              prospector.scanner.symlinks: true
+              close.on_state_change.removed: false
+              parsers:
+                - container: ~
+              paths:
+                - /var/lib/docker/containers/${data.docker.container.id}/*.log
+
+processors:
+  - add_docker_metadata: ~
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  index: "docker-log-%{+YYYY.MM.dd}-filebeat-%{[agent.version]}"
