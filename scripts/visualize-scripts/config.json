@@ -3,15 +3,15 @@
   "scripts": [
     {
       "documentation": {
-        "command": "http",
-        "description": "Decrypt and import HTTP logs into Elasticsearch. Expects a private key in a file in the './keys' folder named 'gpg.key', and encrypted files in the './data/encrypted/http' directory.  If password is empty, it will be requested on the terminal.",
+        "command": "encrypted",
+        "description": "Decrypt and import HTTP and docker logs into Elasticsearch. Expects a private key in a file in the './keys' folder named 'gpg.key', and encrypted files in the './data/encrypted' directory.  If password is empty, it will be requested on the terminal.",
         "arguments": ["recipient", "threads:1", "batch-size:1000", "password"]
       },
       "environment": {
         "image": "redpencil/app-http-logger-visualize-scripts:1.1.0",
         "interactive": true,
         "join_networks": true,
-        "script": "http.sh"
+        "script": "encrypted.sh"
       },
       "mounts": {
         "app": "/project/"
@@ -20,7 +20,7 @@
     {
       "documentation": {
         "command": "http-decrypted",
-        "description": "Import already decrypted HTTP logs into Elasticsearch. Expects decrypted files in the './data/decrypted/http' directory.",
+        "description": "Import already decrypted HTTP logs into Elasticsearch. Expects decrypted files in the './data/decrypted' directory.",
         "arguments": ["recipient", "threads:1", "batch-size:1000"]
       },
       "environment": {

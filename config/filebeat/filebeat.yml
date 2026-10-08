@@ -1,5 +1,3 @@
-setup.template.enabled: false # Disable data streams
-
 filebeat.autodiscover:
   providers:
     - type: docker
@@ -19,6 +17,5 @@ filebeat.autodiscover:
 processors:
   - add_docker_metadata: ~
 
-output.elasticsearch:
-  hosts: ["http://elasticsearch:9200"]
-  index: "docker-log-%{+YYYY.MM.dd}-filebeat-%{[agent.version]}"
+output.logstash:
+  hosts: ["docker-logstash:5044"]
