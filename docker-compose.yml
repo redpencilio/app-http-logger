@@ -48,7 +48,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     logging: *default-logging
-  logstash:
+  http-logstash:
     image: redpencil/http-logger-logstash:1.1.0
     volumes:
       - ./config/logstash-http/input-from-beats.conf:/pipeline/input.conf:ro
@@ -68,6 +68,11 @@ services:
     logging: *default-logging
     environment:
       LS_JAVA_OPTS: "-XX:-UseBASE64Intrinsics"     
+  docker-logstash:
+    image: redpencil/http-logger-logstash:1.1.0
+    volumes:
+      - ./config/logstash-docker/input-from-beats.conf:/pipeline/input.conf:ro
+    logging: *default-logging
   docker-logs-filebeat:
     image: docker.elastic.co/beats/filebeat-oss:9.5.4
     user: "root"
@@ -78,6 +83,9 @@ services:
     command:
       - -e
       - --strict.perms=false
+    depends_on:
+      - docker-logstash
+    logging: *default-logging
   triplestore:
     image: redpencil/virtuoso:1.4.0
     environment:

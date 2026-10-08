@@ -1,5 +1,5 @@
 services:
-  logstash:
+  http-logstash:
     volumes:
       - ./config/logstash-http/output-to-es.conf:/pipeline/output-to-es.conf:ro
     environment:
@@ -8,3 +8,6 @@ services:
   stats-logstash:
     volumes:
       - ./config/logstash-stats/output-to-es.conf:/pipeline/output-to-es.conf:ro
+  docker-logstash:
+    volumes:
+      - ./config/logstash-docker/output-to-es.conf:/pipeline/output-to-es.conf:ro
