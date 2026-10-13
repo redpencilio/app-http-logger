@@ -6,24 +6,24 @@ x-logging:
     max-file: "3"
 
 services:
-  http-logstash:
+  http-logs-logstash:
     volumes:
-      - ./config/logstash-http/output-to-file.conf:/pipeline/output-to-file.conf:ro
-      - ./data/logs:/data:rw
+      - ./config/http-logs-logstash/output-to-file.conf:/pipeline/output-to-file.conf:ro
+      - ./data/logs/http-logs:/data:rw
     environment:
       LOGFILE_FORMAT_STRING: '/data/http-log-%{+YYYY-MM-dd-HH}.json'
       LS_JAVA_OPTS: "-Xms512m -Xmx512m"
   stats-logstash:
     volumes:
-      - ./config/logstash-stats/output-to-file.conf:/pipeline/output-to-file.conf:ro
+      - ./config/stats-logstash/output-to-file.conf:/pipeline/output-to-file.conf:ro
       - ./data/logs/stats:/data:rw
     environment:
       LOGFILE_FORMAT_STRING: '/data/stats-%{+YYYY-MM-dd-HH}.json'
       LS_JAVA_OPTS: "-Xms512m -Xmx512m"
-  docker-logstash:
+  docker-logs-logstash:
     volumes:
-      - ./config/logstash-docker/output-to-file.conf:/pipeline/output-to-file.conf:ro
-      - ./data/logs:/data:rw
+      - ./config/docker-logs-logstash/output-to-file.conf:/pipeline/output-to-file.conf:ro
+      - ./data/logs/docker-logs:/data:rw
     environment:
       LOGFILE_FORMAT_STRING: '/data/docker-log-%{+YYYY-MM-dd-HH}.json'
       LS_JAVA_OPTS: "-Xms512m -Xmx512m"
@@ -36,7 +36,7 @@ services:
     environment:
       ENCRYPT_RECIPIENT: 'info@redpencil.io' # change to your GPG key id
       ENCRYPT_AFTER_MINUTES: 60
-      ENCRYPT_GLOB: '/data/logs/http-log-*.json /data/logs/docker-log-*.json'
+      ENCRYPT_GLOB: '/data/logs/http-logs/http-log-*.json /data/logs/docker-logs/docker-log-*.json'
       ENCRYPTED_DIR: '/data/encrypted'
       #ENCRYPT_INTERVAL: 3600 # default value
     logging: *default-logging
