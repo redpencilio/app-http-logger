@@ -14,7 +14,7 @@ from joblib import Parallel, delayed
 
 # when decrypting, ensure GPG_HOME_FOLDER exists
 GPG_HOME_FOLDER = "/root/.gnupg"
-UNENCRYPTED_LOGS_FOLDER = "/project/data/logs/http"
+UNENCRYPTED_LOGS_FOLDER = "/project/data/logs"
 
 # utils
 def strip_newlines(file):

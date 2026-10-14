@@ -11,7 +11,7 @@ class Arguments:
         before_date_parser = parser.add_mutually_exclusive_group(required=True)
         before_date_parser.add_argument('--before-date', type=self.parse_before_date, help='Log entries from before this date (YYYY-MM-DD) will be deleted.')
         before_date_parser.add_argument('--older-than-days', type=self.parse_older_than_days, dest='before_date', help='Log entries older than this number of days will be deleted.')
-        parser.add_argument('--index-pattern',  default="http-log*,stats*", type=str, help="Comma-separated list of index patterns to clear. Default: \"http-log*,stats*\". Use * for wildcard.")
+        parser.add_argument('--index-pattern',  default="http-log*,docker-log*,stats*", type=str, help="Comma-separated list of index patterns to clear. Default: \"http-log*,docker-log*,stats*\". Use * for wildcard.")
         parser.add_argument('--elasticsearch-url', default="http://elasticsearch:9200")
         parser.add_argument('-y', action='store_true', dest='assume_yes', help="Automatic yes to prompts; assume \"yes\" as answer to all prompts and run non-interactively.")
 
