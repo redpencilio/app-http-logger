@@ -28,7 +28,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       CAPTURE_DOCKER_SOCKET: "/var/run/docker.sock"
-      CAPTURE_CONTAINER_FILTER: '?uri docker:label/docker:key "logging".'
+      CAPTURE_CONTAINER_FILTER: '?uri docker:label ?loggingLabel. ?loggingLabel docker:key "logging"; docker:value ?loggingValue. FILTER REGEX (?loggingValue, "(^|,) *(true|http) *(,|$)", "i").'
       CAPTURE_SYNC_INTERVAL: 60000
       MONITOR_IMAGE: "redpencil/http-logger-packetbeat:1.8.0"
       LOGSTASH_NETWORK: "logstash-network"
@@ -39,7 +39,7 @@ services:
       - database
     logging: *default-logging
   stats:
-    image: redpencil/docker-stats-service:0.0.3
+    image: redpencil/docker-stats-service:0.0.4
     privileged: true
     userns_mode: "host"
     links:
@@ -47,6 +47,8 @@ services:
       - database:database
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      STATS_CONTAINER_FILTER: '?uri docker:label ?loggingLabel. ?loggingLabel docker:key "logging"; docker:value ?loggingValue. FILTER REGEX (?loggingValue, "(^|,) *(true|stats) *(,|$)", "i").'
     logging: *default-logging
   http-logs-logstash:
     image: redpencil/http-logger-logstash:1.1.0

@@ -4,14 +4,14 @@ Provide out-of-the-box automatic logging of your running docker containers, and 
 ## Getting started
 The stack can be started in different modes depending on the `docker-compose.*.yml` files that are taken into account. The different options are described below.
 
-Add a `logging` label to all containers you want to be monitored.
+Add a `logging` label to all containers you want to be monitored. The value should be a comma-separated list of the logs you want to capture. Options are `http`, `stats` and `docker`. Set logging to `true` to caputure all logs.
 
 ``` yaml
 services:
   my-service:
     image: my/example:1.0.0
     labels:
-      - "logging=true"
+      - "logging=http,stats,docker"
 ```
 
 ### Option 1: Logging traffic and directly visualizing it

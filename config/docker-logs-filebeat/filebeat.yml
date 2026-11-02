@@ -3,7 +3,8 @@ filebeat.autodiscover:
     - type: docker
       templates:
         - condition:
-            has_fields: ['docker.container.labels.logging']
+            regexp:
+              docker.container.labels.logging: '(?i)(^|,) *(true|docker) *(,|$)'
           config:
             - type: filestream
               id: container-${data.docker.container.id}
