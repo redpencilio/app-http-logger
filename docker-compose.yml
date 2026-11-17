@@ -56,6 +56,8 @@ services:
       - default
       - logstash-network
     logging: *default-logging
+    environment:
+      LS_JAVA_OPTS: "-XX:-UseBASE64Intrinsics"     
   stats-logstash:
     image: redpencil/http-logger-logstash:1.1.0
     volumes:
@@ -64,6 +66,8 @@ services:
       - default
       - logstash-network
     logging: *default-logging
+    environment:
+      LS_JAVA_OPTS: "-XX:-UseBASE64Intrinsics"     
   triplestore:
     image: redpencil/virtuoso:1.4.0
     environment:
