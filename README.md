@@ -4,7 +4,7 @@ Provide out-of-the-box automatic logging of your running docker containers, and 
 ## Getting started
 The stack can be started in different modes depending on the `docker-compose.*.yml` files that are taken into account. The different options are described below.
 
-Add a `logging` label to all containers you want to be monitored. The value should be a comma-separated list of the logs you want to capture. Options are `http`, `stats` and `docker`. Set logging to `true` to caputure all logs.
+Add a `logging` label to all containers you want to be monitored. The value should be a comma-separated list of the logs you want to capture. Options are `http`, `stats` and `docker`. Set logging to `true` to caputure all logs. Journald logs are captured by default.
 
 ``` yaml
 services:
@@ -27,7 +27,7 @@ Start the app-http-logger by running:
 docker compose up -d
 ```
 
-Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index patterns `http-log*`, `docker-log*` and `stats*` and click on 'discover'.
+Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index patterns `http-log*`, `docker-log*`, `journald-log*` and `stats*` and click on 'discover'.
 
 _Note: the intermediate logs are not written to files. As a consequence in this setup no backups of the logs can be taken. This is probably not what you want in production. To have both live visualization and backups of the logs use [Option 3: Logging traffic to (encrypted) files and directly visualizing it](#option-3-logging-traffic-to-encrypted-files-and-directly-visualizing-it) instead._
 
@@ -167,9 +167,9 @@ Although not explicitly supported, app-http-logger can work on rootless docker w
 The stack can be started in different modes depending on the `docker-compose.*.yml` files that are taken into account. The different scenarios and their typical usage are described in the [Getting started guide](#getting-started).
 
 The following docker-compose files are available.
-* `docker-compose.yml`: provides common base functionality: services to capture HTTP traffic, docker logs and docker stats for every container; logstash services to handle captured logs; database infrastructure.
-* `docker-compose.encrypt.yml`: provides a Logstash pipeline that writes HTTP logs, docker logs and stats to a file, and an encryption/compression service that will periodically encrypt/compress the written logs.
-* `docker-compose.live.yml`: provides a Logstash pipeline that pushes HTTP logs, docker logs and stats directly to Elasticsearch for indexing and visualization.
+* `docker-compose.yml`: provides common base functionality: services to capture HTTP traffic, docker logs, journald logs and docker stats for every container; logstash services to handle captured logs; database infrastructure.
+* `docker-compose.encrypt.yml`: provides a Logstash pipeline that writes logs and stats to a file, and an encryption/compression service that will periodically encrypt/compress the written logs.
+* `docker-compose.live.yml`: provides a Logstash pipeline that pushes logs and stats directly to Elasticsearch for indexing and visualization.
 * `docker-compose.to-remote.yml`: provides a Logstash pipeline that pushes HTTP logs and stats to a remote visualization stack.
 * `docker-compose.from-remote.yml`: provides a Logstash pipeline that ingests HTTP logs and stats originating from a remote stack.
 * `docker-compose.visualize.yml`: provides an ElasticSearch and Kibana container for indexing and visualization.

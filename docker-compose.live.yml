@@ -11,3 +11,6 @@ services:
   docker-logs-logstash:
     volumes:
       - ./config/docker-logs-logstash/output-to-es.conf:/pipeline/output-to-es.conf:ro
+  journald-logs-logstash:
+    volumes:
+      - ./config/journald-logs-logstash/output-to-es.conf:/pipeline/output-to-es.conf:ro

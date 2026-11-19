@@ -90,6 +90,26 @@ services:
     depends_on:
       - docker-logs-logstash
     logging: *default-logging
+  journald-logs-logstash:
+    image: redpencil/http-logger-logstash:1.1.0
+    volumes:
+      - ./config/journald-logs-logstash/input-from-beats.conf:/pipeline/input.conf:ro
+    logging: *default-logging
+  journald-logs-filebeat:
+    image: docker.elastic.co/beats/filebeat-oss:9.5.4
+    user: "root"
+    volumes:
+      - ./config/journald-logs-filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./data/journald-logs-filebeat:/usr/share/filebeat/data
+      - /var/log/journal:/var/log/journal:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+    command:
+      - -e
+      - --strict.perms=false
+    depends_on:
+      - journald-logs-logstash
+    logging: *default-logging
   triplestore:
     image: redpencil/virtuoso:1.4.0
     environment:

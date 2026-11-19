@@ -4,7 +4,7 @@
     {
       "documentation": {
         "command": "encrypted",
-        "description": "Decrypt and import HTTP and docker logs into Elasticsearch. Expects a private key in a file in the './keys' folder named 'gpg.key', and encrypted files in the './data/encrypted' directory.  If password is empty, it will be requested on the terminal.",
+        "description": "Decrypt and import HTTP, docker and journald logs into Elasticsearch. Expects a private key in a file in the './keys' folder named 'gpg.key', and encrypted files in the './data/encrypted' directory.  If password is empty, it will be requested on the terminal.",
         "arguments": ["recipient", "threads:1", "batch-size:1000", "password"]
       },
       "environment": {

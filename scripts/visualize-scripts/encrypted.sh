@@ -21,7 +21,7 @@ echo "$PASSPHRASE" | gpg --batch --import --pinentry-mode loopback /project/keys
 
 BATCH_SIZE=${3:-1000} # fallback to default: 1000
 THREADS=${2:-1}
-for ES_INDEX in "http-log" "docker-log"
+for ES_INDEX in "http-log" "docker-log" "journald-log"
 do
   echo "Going to import logs in Elasticsearch index $ES_INDEX (batch size $BATCH_SIZE) (parallel $THREADS)"
 
