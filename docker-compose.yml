@@ -94,6 +94,8 @@ services:
     image: redpencil/http-logger-logstash:1.1.0
     volumes:
       - ./config/journald-logs-logstash/input-from-beats.conf:/pipeline/input.conf:ro
+      - ./config/journald-logs-logstash/filter.conf:/pipeline/filter.conf:ro
+      - ./config/journald-logs-logstash/patterns:/etc/logstash/patterns:ro
     logging: *default-logging
   journald-logs-filebeat:
     image: docker.elastic.co/beats/filebeat-oss:9.5.4
