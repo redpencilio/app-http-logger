@@ -27,12 +27,12 @@ Start the app-http-logger by running:
 docker compose up -d
 ```
 
-Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index patterns `http-log*` and `stats*` and click on 'discover'.
+Logs will be visible in Kibana at `http://localhost:5601`. For a basic setup, add the index patterns `http-log*`, `docker-log*` and `stats*` and click on 'discover'.
 
 _Note: the intermediate logs are not written to files. As a consequence in this setup no backups of the logs can be taken. This is probably not what you want in production. To have both live visualization and backups of the logs use [Option 3: Logging traffic to (encrypted) files and directly visualizing it](#option-3-logging-traffic-to-encrypted-files-and-directly-visualizing-it) instead._
 
 ### Option 2: Logging traffic to (encrypted) files
-In this mode, data is captured and written to files. This is probably your prefered mode on production machines. HTTP logs get encrypted, stats remain unencrypted. Visualization is not running live on the data, but can be setup on any machine (see option 3).
+In this mode, data is captured and written to files. This is probably your prefered mode on production machines. HTTP logs and docker logs get encrypted, stats remain unencrypted. Visualization is not running live on the data, but can be setup on any machine (see option 3).
 
 Update the `.env` file to use the following docker-compose files:
 ```
@@ -83,12 +83,12 @@ docker compose up -d
 
 Put the private GPG key `gpg.key` in `./keys`. This key will be used for decryption.
 
-Put the encrypted logs files in `./data/encrypted/http`
+Put the encrypted logs files in `./data/encrypted/`
 
 Execute the following mu-script to import the encrypted logs files with the correct recipient (key id) for the GPG key:
 ``` sh
 RECIPIENT=johnny.bravo@example.com
-mu script visualize-scripts http $RECIPIENT
+mu script visualize-scripts encrypted $RECIPIENT
 ```
 
 Put the compressed stats files in `./data/compressed/stats`
@@ -98,7 +98,7 @@ Execute the following mu-script to import the stats files:
 mu script visualize-scripts stats
 ```
 
-Logs will be visible in Kibana at `http://localhost:5601`. Add the index patterns `http-log*` and `stats*` and click on 'discover'.
+Logs will be visible in Kibana at `http://localhost:5601`. Add the index patterns `http-log*`, `docker-log*` and `stats*` and click on 'discover'.
 
 _Note: the visualization scripts don't keep track which files have already been imported. Hence, running the script twice on the same set of files will result in duplicate entries._
 
@@ -167,9 +167,9 @@ Although not explicitly supported, app-http-logger can work on rootless docker w
 The stack can be started in different modes depending on the `docker-compose.*.yml` files that are taken into account. The different scenarios and their typical usage are described in the [Getting started guide](#getting-started).
 
 The following docker-compose files are available.
-* `docker-compose.yml`: provides common base functionality: services to capture HTTP traffic and docker stats for every container; logstash services to handle captured logs; database infrastructure.
-* `docker-compose.encrypt.yml`: provides a Logstash pipeline that writes HTTP logs and stats to a file, and an encryption/compression service that will periodically encrypt/compress the written HTTP/stats logs.
-* `docker-compose.live.yml`: provides a Logstash pipeline that pushes HTTP logs and stats directly to Elasticsearch for indexing and visualization.
+* `docker-compose.yml`: provides common base functionality: services to capture HTTP traffic, docker logs and docker stats for every container; logstash services to handle captured logs; database infrastructure.
+* `docker-compose.encrypt.yml`: provides a Logstash pipeline that writes HTTP logs, docker logs and stats to a file, and an encryption/compression service that will periodically encrypt/compress the written logs.
+* `docker-compose.live.yml`: provides a Logstash pipeline that pushes HTTP logs, docker logs and stats directly to Elasticsearch for indexing and visualization.
 * `docker-compose.to-remote.yml`: provides a Logstash pipeline that pushes HTTP logs and stats to a remote visualization stack.
 * `docker-compose.from-remote.yml`: provides a Logstash pipeline that ingests HTTP logs and stats originating from a remote stack.
 * `docker-compose.visualize.yml`: provides an ElasticSearch and Kibana container for indexing and visualization.
@@ -185,5 +185,6 @@ The following docker-compose files are available.
 * [kibana](https://www.elastic.co/guide/en/kibana/current/index.html): dashboard .
 * [logstash](https://www.elastic.co/guide/en/logstash/current/index.html): log processing.
 * [packetbeat](https://www.elastic.co/guide/en/beats/packetbeat/current/index.html): network monitoring.
+* [filebeat](https://www.elastic.co/guide/en/beats/filebeat/current/index.html): collects docker logs.
 * [mu-authorization](https://github.com/mu-semtech/sparql-parser): abstraction layer for the database, create delta's from database state changes.
 * [delta-notifier](https://github.com/mu-semtech/delta-notifier): notify network capture service of changes in docker state.
