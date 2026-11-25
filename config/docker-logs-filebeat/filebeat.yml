@@ -1,0 +1,22 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      templates:
+        - condition:
+            regexp:
+              docker.container.labels.logging: '(?i)(^|,) *(true|docker) *(,|$)'
+          config:
+            - type: filestream
+              id: container-${data.docker.container.id}
+              prospector.scanner.symlinks: true
+              close.on_state_change.removed: false
+              parsers:
+                - container: ~
+              paths:
+                - /var/lib/docker/containers/${data.docker.container.id}/*.log
+
+processors:
+  - add_docker_metadata: ~
+
+output.logstash:
+  hosts: ["docker-logs-logstash:5044"]

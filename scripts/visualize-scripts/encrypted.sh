@@ -19,9 +19,11 @@ fi
 # Add the key and unlock it
 echo "$PASSPHRASE" | gpg --batch --import --pinentry-mode loopback /project/keys/gpg.key
 
-ES_INDEX="http-log"
 BATCH_SIZE=${3:-1000} # fallback to default: 1000
 THREADS=${2:-1}
-echo "Going to import HTTP logs in Elasticsearch index $ES_INDEX (batch size $BATCH_SIZE) (parallel $THREADS)"
+for ES_INDEX in "http-log" "docker-log"
+do
+  echo "Going to import logs in Elasticsearch index $ES_INDEX (batch size $BATCH_SIZE) (parallel $THREADS)"
 
-python3 ./import-logs.py "$RECIPIENT" "$PASSPHRASE" 'http://elasticsearch:9200' "$ES_INDEX" $BATCH_SIZE $THREADS /project/data/encrypted/http/*
+  python3 ./import-logs.py "$RECIPIENT" "$PASSPHRASE" 'http://elasticsearch:9200' "$ES_INDEX" $BATCH_SIZE $THREADS /project/data/encrypted/$ES_INDEX*
+done
