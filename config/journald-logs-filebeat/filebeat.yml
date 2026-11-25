@@ -1,0 +1,7 @@
+filebeat.inputs:
+  - type: journald
+    id: journal # Keep cursor so logs between restarts are not lost
+    seek: tail # Read logs since first start of this logging service
+
+output.logstash:
+  hosts: ["journald-logs-logstash:5044"]

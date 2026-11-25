@@ -1,0 +1,3 @@
+FAIL2BAN_ALREADY_BANNED already banned
+FAIL2BAN_ACTION Found|Ban|Unban|Ignore|Restore Ban|Increase Ban
+FAIL2BAN_JAIL \[%{DATA:[fail2ban][jail]}\]
